@@ -14,6 +14,11 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
+### Wireframe
+https://lucid.app/lucidchart/ed34b282-aa3d-44f6-96e4-265d2fc9cf37/edit?viewport_loc=-1528%2C-1461%2C1800%2C1162%2C0_0&invitationId=inv_769744b0-3d3e-4f26-b1e5-6c703ca3e37f
+
+
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
