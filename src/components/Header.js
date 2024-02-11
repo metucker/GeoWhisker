@@ -1,7 +1,12 @@
+import Logo from './Logo';
+import React from 'react';
+
 export default function Header() {
     return (
       <nav className="navBar">
-        <row>Logo
+        <row>
+          <Logo/>
+          <h1>GeoWhisker</h1>
 
         <a href="/">Home</a>
          

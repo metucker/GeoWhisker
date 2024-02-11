@@ -29,14 +29,6 @@
   color: rgb(64, 224, 208);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .navBar, .bottomNav {
   background-color: rgb(64, 224, 208);
