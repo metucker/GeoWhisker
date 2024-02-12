@@ -4,17 +4,16 @@ import React from 'react';
 export default function Header() {
     return (
       <nav className="navBar">
-        <row>
           <Logo/>
-          <h1>GeoWhisker</h1>
-
-        <a href="/">Home</a>
-         
-         <a href="/browse">Browse</a>  
-       
-        </row>
-        
-          
+          GeoWhisker
+        <ul>
+          <li>
+            <a href="/home">Home</a>
+          </li>
+          <li>
+            <a href="/browse">Browse</a>
+          </li>
+        </ul>
       </nav>
     )
   }

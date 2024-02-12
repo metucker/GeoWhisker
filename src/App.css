@@ -30,9 +30,14 @@
 }
 
 
-.navBar, .bottomNav {
-  background-color: rgb(64, 224, 208);
+.navBar, .bottomNav, #Header, #Footer, .ul {
+  background-color: #3862b6;
   color: white;
   padding: 10px;
+  opacity: 50%;
+  list-style: none !important;
+  margin: 0;
+  padding: 0;
+  display: flex; /* Use flexbox to make the list items appear in one line */
 }
 
