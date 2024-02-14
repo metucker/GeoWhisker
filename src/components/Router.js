@@ -7,15 +7,16 @@ export default function Router() {
 
     const Layout = () => {
         return (
-          <div>
+          <>
             <Header />
             <Outlet />
             <Footer />
-          </div>
+          </>
         );
       }
 
       const BrowserRoutes = () => {
+        return (
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -24,11 +25,11 @@ export default function Router() {
           </Route>
         </Routes>
       </BrowserRouter>
+        );
       }
 
   return (
     <>
-    <Layout/>
     <BrowserRoutes/>
     </>
   );

@@ -1,0 +1,47 @@
+/* Header.css */
+
+.navBarContainer,
+.headerAndLogo,
+.navBar {
+    display: flex;
+    align-items: center;
+    background: #3f7c7c;
+    color: #fff;
+}
+
+.navBarContainer {
+    justify-content: space-between;
+}
+
+.headerAndLogo {
+    padding: 0 3px 0 0;
+    margin-right: 100px;
+    transform: scale(0.75);
+}
+
+.logo {
+    margin: 5px;
+}
+
+.brandName {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.navLinks {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navLinks li {
+    margin-right: 15px;
+}
+
+.navLinks a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+}
