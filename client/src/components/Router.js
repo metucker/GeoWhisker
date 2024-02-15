@@ -1,8 +1,8 @@
 import {BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
-import Header from '../components/Header'
+import Header from './Header'
 import Home from '../pages/Home'
 import Browse from '../pages/Browse'
-import Footer from '../components/Footer'
+import Footer from './Footer'
 export default function Router() {
 
     const Layout = () => {
