@@ -1,6 +1,7 @@
 import '../App.css';
 import backgroundPhoto from '../assets/images/pexels-cat1.jpg'
 import LogIn from '../components/Authentication/LogIn'
+import SignUp from '../components/Authentication/SignUp';
 
 function Home() {
 
@@ -13,7 +14,7 @@ function Home() {
         <p>
           
         </p>
-        <LogIn/>
+        <SignUp/>
         {/* <div className='backgroundPhoto'>
         <img src={backgroundPhoto} className="App-logo" alt="logo" Style = {{
           backgroundImage: `url(${backgroundPhoto})`, 

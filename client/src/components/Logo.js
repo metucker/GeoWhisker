@@ -18,7 +18,7 @@ const Logo = () => {
    
 
       {/* Shorter tipped ear (trapezoid) */}
-      <polygon points="70,30 55,25 50,-5 50,-10" fill="#40E0D0" />
+      <polygon points="55,25 70,25 55,00" fill="#40E0D0" />
 
 
 
