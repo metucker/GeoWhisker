@@ -46,6 +46,9 @@ async function saveUserToDatabase(email, pw) {
     try {
       // Establish a connection to the database
       connection = await oracledb.getConnection(dbConfig);
+
+      //TODO: check if user exists (by email)
+      //TODO: hash pw before saving to db
   
       // Prepare the SQL statement
       const sql = 'INSERT INTO Caretakers (email, pw) VALUES (:email, :pw)';
