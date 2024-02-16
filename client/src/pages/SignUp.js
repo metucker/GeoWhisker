@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './components/Authentication.css';
+import '../components/Authentication/Authentication.css';
 
 const SignUp = () => {
   const [newEmail, setNewEmail] = useState('');
@@ -25,7 +25,7 @@ const SignUp = () => {
         console.log('User signed up successfully!');
       } else {
         // Handle errors, e.g., display an error message
-        console.error('Failed to sign up. Please try again.',email, pw);
+        console.error('Failed to sign up. Please try again.');
       }
     } catch (error) {
       console.error('Error during signup:', error.message);
