@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Authentication.css';
+import './components/Authentication.css';
 
 const SignUp = () => {
   const [newEmail, setNewEmail] = useState('');
@@ -25,7 +25,7 @@ const SignUp = () => {
         console.log('User signed up successfully!');
       } else {
         // Handle errors, e.g., display an error message
-        console.error('Failed to sign up. Please try again.');
+        console.error('Failed to sign up. Please try again.',email, pw);
       }
     } catch (error) {
       console.error('Error during signup:', error.message);
@@ -39,6 +39,7 @@ const SignUp = () => {
         <label>
           New Email:
           <input
+            name="email"
             type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
@@ -47,6 +48,7 @@ const SignUp = () => {
         <label>
           New Password:
           <input
+            name="password"
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
