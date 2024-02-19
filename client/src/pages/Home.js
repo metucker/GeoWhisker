@@ -41,7 +41,6 @@ function Home() {
             {/* Conditionally render signup or login based on state */}
             {showSignUp ? <SignUp onLoginSuccess={handleLoginSuccess}/> : <LogIn onLoginSuccess={handleLoginSuccess} />}
             {/* Conditionally render signup or login based on state */}
-            {showSignUp ? <SignUp onLoginSuccess={handleLoginSuccess} /> : <LogIn />}
           </>
         )}
        
