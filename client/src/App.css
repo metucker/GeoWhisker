@@ -17,7 +17,7 @@
   text-align: center;
 }
 
-.Home {
+.Home, .Signup, .LogIn {
   background-color: #282c34;
   min-height: 80vh;
   display: flex;
@@ -29,7 +29,6 @@
 
 .container {
   justify-content: center;
-  margin: 5px;
 }
 
 #label, #input {
@@ -37,6 +36,7 @@
   margin: 10px 5px;
   color: white;
   text-align: center;
+  size: fixed;
 }
 
 .button {

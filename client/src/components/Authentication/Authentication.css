@@ -5,12 +5,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
+    background-color: #282c34;
+    color: white;
+    justify-content: center;
+    border: 20px;
   }
   
   h2 {
     margin-bottom: 20px;
+
   }
   
   label {
@@ -40,10 +44,11 @@
     opacity: 50%;
   }
 
-  .existingUser {
+  .existingUser, .returningUser, .newUser {
     margin-top: 20px;
     font-size: 18px;
   }
+
   a {
     text-decoration: none;
     color: #6576d6;

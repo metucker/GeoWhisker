@@ -1,4 +1,4 @@
-import './App.css';
+//import './App.css';
 import backgroundPhoto from './assets/images/pexels-cat1.jpg'
 import LogIn from './components/Authentication/LogIn'
 import SignUp from './components/Authentication/SignUp';
