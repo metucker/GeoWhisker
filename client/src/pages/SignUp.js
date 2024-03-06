@@ -47,7 +47,7 @@ const SignUp = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        //onLoginSuccess();
+        onLoginSuccess();
         console.log('User logged in successfully!');
       } else {
         // Handle errors, e.g., display an error message

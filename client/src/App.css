@@ -27,8 +27,40 @@
   color: white;
 }
 
-.container {
+.container, .columns {
   justify-content: center;
+  margin: 10px;
+  padding: 10px;
+}
+
+.options {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+  justify-content: space-around;
+}
+
+.columns {
+  margin: 20px;
+  display: flex;
+}
+
+.yourCats,
+.catMap {
+  background-color: #383d46;
+  min-height: 80vh;
+  max-width: fit-content;
+  min-width: 50vw;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  margin: 20px;
+}
+
+.yourCats {
+  margin-right: 20px; /* Add margin to the right of yourCats for space between the two */
 }
 
 #label, #input {
@@ -61,6 +93,23 @@
   background-position: center;
   height: 100vh;
   width: 100%;
+}
+
+@media (max-width: 800px) {
+  .columns, .options {
+    flex-direction: column;
+    width: auto;
+  }
+  
+
+  .options button {
+    width: auto; /* Reset button width for smaller screens */
+    margin: 15px; /* Reset margin between buttons for smaller screens */
+  }
+
+  .yourCats {
+    margin-right: 0; /* Reset margin for smaller screens */
+  }
 }
 
 /* Add any specific styling for the LogIn component here */

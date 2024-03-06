@@ -27,6 +27,7 @@ const LogIn = ({ onLoginSuccess }) => {
         // Handle success, e.g., redirect to another page
         //onLoginSuccess();
         console.log('User logged in successfully!');
+        onLoginSuccess();
       } else {
         // Handle errors, e.g., display an error message
         console.error('Failed to sign up. Please try again.');

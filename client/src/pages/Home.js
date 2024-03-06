@@ -5,8 +5,8 @@ import LogIn from './LogIn'
 import SignUp from './SignUp';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCat, faUser, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 function Home() {
 
@@ -23,19 +23,20 @@ function Home() {
     // Handle successful login
     setIsLoggedIn(true);
     //setShowSignUp(false);
+    navigate('/home');
     // Additional logic or navigation after login
   };
-
 
   return (
     <>
       <div className="Home" >
         <div className='container'>
           
-        </div>
         {/* Render different content based on login status */}
         {isLoggedIn ? (
-          <p>Welcome! You are logged in.</p>
+          <>
+            <p>Welcome!</p>
+          </>
         ) : (
           <>
             {/* Conditionally render signup or login based on state */}
@@ -43,22 +44,37 @@ function Home() {
             {/* Conditionally render signup or login based on state */}
           </>
         )}
+        {isLoggedIn == true} {console.log('User logged in successfully!')}
        
         {window.location.pathname === '/signup' && <SignUp onLoginSuccess={handleLoginSuccess} />}
         {window.location.pathname === '/login' && <LogIn />}
-       
 
-        {/* <div className='backgroundPhoto'>
-        <img src={backgroundPhoto} className="App-logo" alt="logo" Style = {{
-          backgroundImage: `url(${backgroundPhoto})`, 
-          backgroundSize: "cover, fill",
-          backgroundRepeat: "no-repeat", 
-          backgroundPosition: "center", 
-          height: "100vh", width: "100%"
-          }}
-          />
-          </div> */}
-          
+        {isLoggedIn && (
+          <div className='homePage'>
+            {/* Buttons for logged-in users */}
+            <div className='options'>
+              <button onClick={() => navigate('/browse')}>Browse Cats <FontAwesomeIcon icon={faMagnifyingGlass}/></button>
+              <button onClick={() => navigate('/addcat')}>Add Cat <FontAwesomeIcon icon={faCat}/></button>
+              <button onClick={() => navigate('/editprofile')}>Edit Profile <FontAwesomeIcon icon={faUser}/></button>
+            </div>
+
+            {/* Section for Your Cats and Your Cat Map */}
+            <div className='columns'>
+              {/* Left column - Your Cats */}
+              <div className='yourCats'>
+                <h2>Your Cats</h2>
+                {/* Add content for Your Cats */}
+              </div>
+
+              {/* Right column - Your Cat Map */}
+              <div className='catMap'>
+                <h2>Your Cat Map</h2>
+                {/* Add content for Your Cat Map */}
+              </div>
+            </div>
+          </div>
+        )}
+          </div>
       </div>
       </>
   );
