@@ -84,7 +84,7 @@ const labelsSchema = new Schema ({
 })
 
 
-const Users = oracle.model('Users', userSchema, 'Caretakers');
+const Users = oracle.model('Users', userSchema, 'Users');
 const Cats = oracle.model('Cats', catSchema, 'Cats');
 const CoatColors = oracle.model('CoatColors', coatColorsSchema, 'CoatColors');
 const CoatPatterns = oracle.model('CoatPatterns', coatPatternsSchema, 'CoatPatterns');
