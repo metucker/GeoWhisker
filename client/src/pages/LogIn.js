@@ -3,11 +3,12 @@ import '../App.css';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-const LogIn = ({ onLoginSuccess }) => {
+const LogIn = ({ handleLoginSuccess }) => {
   const [email, checkEmail] = useState('');
   const [password, checkPassword] = useState('');
 
   const handleLogIn = async (event) => {
+    console.log('Type of handleLoginSuccess:',typeof handleLoginSuccess);
     event.preventDefault();
     // Handle login logic (e.g., send data to a server)
 
@@ -25,9 +26,8 @@ const LogIn = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        //onLoginSuccess();
         console.log('User logged in successfully!');
-        onLoginSuccess();
+        handleLoginSuccess();
       } else {
         // Handle errors, e.g., display an error message
         console.error('Failed to sign up. Please try again.');

@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import '../App.css';
+import Home from './Home';
 //import '../components/Authentication/Authentication.css';
+import { useNavigate } from 'react-router-dom';
 
-const SignUp = ({ onLoginSuccess }) => {
+
+const SignUp = ({ handleLoginSuccess }) => {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSignUp = async (event) => {
-    event.preventDefault();
+    console.log('Type of handleLoginSuccess:',typeof handleLoginSuccess);
 
+    event.preventDefault();
     try {
       const response = await fetch('http://localhost:4000/signup', {
         method: 'POST',
@@ -23,7 +28,8 @@ const SignUp = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        //onLoginSuccess();//TODO - this is not working
+        handleLoginSuccess();
+        navigate('/home');
         console.log('User signed up successfully!');
       } else {
         // Handle errors, e.g., display an error message
@@ -47,7 +53,6 @@ const SignUp = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        onLoginSuccess();
         console.log('User logged in successfully!');
       } else {
         // Handle errors, e.g., display an error message
