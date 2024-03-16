@@ -4,7 +4,8 @@ const oracledb = require('oracledb');
 const { dbConfig } = require('../dbConfig');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
+//const schemas = require('../models/schemas'); 
+  //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
 
 // Middleware to parse JSON in the request body
 router.use(bodyParser.json());
@@ -21,6 +22,10 @@ router.post('/signup', async (req, res) => {
           throw error('User already exists.');
         } else {
           await saveUserToDatabase(email, await hashPassword(pw));
+          // Save the user data to the database with schemas
+          // const newData = {email: email, pw: await hashPassword(pw)};
+          // const newUser = new schemas.Users(newData);
+          // await newUser.save();
         }      
 
         // Send a success response
@@ -60,7 +65,7 @@ router.get('/users', async (req, res) => {
     connection = await oracledb.getConnection(dbConfig);
 
     const result = await connection.execute(
-      `SELECT * FROM Caretakers`
+      `SELECT * FROM Users`
     );
 
     const caretakers = result.rows;
@@ -88,7 +93,7 @@ async function userExists(email) {
 
     // Prepare the SQL query
     const query = `
-      SELECT * FROM Caretakers WHERE email = :email
+      SELECT * FROM Users WHERE email = :email
     `;
 
     // Bind parameters for the query
@@ -130,7 +135,7 @@ async function saveUserToDatabase(email, pw) {
       // Prepare the SQL statement
       
 
-      const sql = 'INSERT INTO Caretakers (email, pw) VALUES (:email, :pw)';
+      const sql = 'INSERT INTO Users (email, pw) VALUES (:email, :pw)';
       const binds = { email, pw};
       
       // Execute the SQL statement
@@ -161,7 +166,7 @@ async function saveUserToDatabase(email, pw) {
       //Execute a query to find the user with the given email and password
       
 
-      const sql = `SELECT * FROM Caretakers WHERE email = :email`;
+      const sql = `SELECT * FROM Users WHERE email = :email`;
       const binds = { email };
       
       // Execute the SQL statement

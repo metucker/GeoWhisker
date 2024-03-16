@@ -25,9 +25,8 @@ const catSchema = new Schema({
     hlength: {type:String},
     photos: {type:Array}, 
     gender: {type:String}, //F, M
-    age: {type:Number}, //maybe there should be a kitten/adult/senior option
+    ageCat: {type:String}, //maybe there should be a kitten/adult/senior option
     chipID: {type:String},
-    eartip: {type:Boolean},
     feederID: {type:Number},
     feral: {type:Boolean},
     colors: {type:coatColorsSchema},
@@ -42,7 +41,8 @@ const coatColorsSchema = new Schema({
     orange: {type:Boolean},
     gray: {type:Boolean},
     brown: {type:Boolean}, 
-    other: {type:String}
+    other: {type:String},
+    catID: {type:Number},
 });
 
 const coatPatternsSchema = new Schema ({
@@ -51,7 +51,8 @@ const coatPatternsSchema = new Schema ({
     bicolored: {type:Boolean},
     tricolored: {type:Boolean},
     colorPoint: {type:Boolean},
-    other: {type:String}
+    other: {type:String},
+    catID: {type:Number},
 });
 
 const healthSchema = new Schema ({
@@ -65,7 +66,8 @@ const healthSchema = new Schema ({
     currAffliction: {type:String},
     vaccinations: {type:Array}, 
     misc: {type:String},
-    rightLeftEar: {type:String}
+    rightLeftEar: {type:String},
+    catID: {type:Number},
 });
 
 const commentsSchema = new Schema ({
@@ -73,14 +75,14 @@ const commentsSchema = new Schema ({
     id: {type:Number},
     body: {type:String},
     userID: {type:Number},
-    catID: {type:Number},
-    labels: {type:Array}
+    catID: {type:Number}
 });
 
 const labelsSchema = new Schema ({
     needsMedCare: {type:Boolean},
     helpWanted: {type:Boolean},
     needsFeeding: {type:Boolean},
+    comID : {type:Number}
 });
 
 const Users = oracle.model('Users', userSchema, 'Users');
