@@ -4,8 +4,114 @@ const oracledb = require('oracledb');
 const { dbConfig } = require('../dbConfig');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+const { serialize } = require('cookie');
+
 //const schemas = require('../models/schemas'); 
   //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
+
+async function createSession(userID) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    // Generate a random session token
+    const token = await bcrypt.hash('session', 10);
+
+    // Prepare the SQL query
+    const query = `
+      INSERT INTO Sessions (userID, token) VALUES (:userID, :token)
+    `;
+
+    // Bind parameters for the query
+    const bindParams = {
+      userID,
+      token,
+    };
+
+    // Execute the query
+    const result = await connection.execute(query, bindParams);
+    console.log('result', result.lastRowid);
+    return  result.lastRowid;//TODO is this okay lol
+  } catch (error) {
+    console.error('Error creating session:', error);
+    throw error; // You might want to handle the error differently based on your application logic
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+  }
+
+}
+async function getUserID(email) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    // Prepare the SQL query
+    const query = `
+    SELECT id FROM Users WHERE email = :email
+    `;
+
+    // Bind parameters for the query
+    const bindParams = {
+      email,
+    };
+
+    // Execute the query
+    const result = await connection.execute(query, bindParams);
+    // Check if the query returned any rows
+    if (result.rows.length > 0) {
+      return result.rows[0][0];
+    } else {
+      return -1;
+    }
+  } catch (error) {
+    console.error('Error retrieving userID:', error);
+    throw error; // You might want to handle the error differently based on your application logic
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+  }
+};
+
+async function setCookie(email) {
+  try {
+    // Generate a random session token
+    const userID = await getUserID(email);
+    const session = await createSession(userID);
+    // Set the session token in the database
+    // (Replace 'setSessionTokenInDatabase' with your actual function)
+    //await setSessionTokenInDatabase(email, sessionToken);
+    // Set the session token in a cookie
+    const cookieOptions = {
+      maxAge: 3600, // 1 hour in seconds
+      expires: new Date(Date.now() + 3600000), // 1 hour from now
+      domain: 'localhost:3000',
+      path: '/',
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict'
+    };
+    console.log("session:", session);
+    const cookieString = serialize(session.ID, session.token, cookieOptions);
+    return cookieString;
+  } catch (error) {
+    console.error('Error setting session token:', error.message);
+    throw error; // You might want to handle the error differently based on your application logic
+  }
+};
+
 
 // Middleware to parse JSON in the request body
 router.use(bodyParser.json());
@@ -46,8 +152,8 @@ router.post('/login', async (req, res) => {
   
       // Authenticate the user
       await authenticateUser(email, pw);
-       
-  
+      res.setHeader('Set-Cookie', await setCookie(email));
+
       // Send a success response
       res.status(200).json({ message: 'User logged in successfully!' });
     } catch (error) {
@@ -157,57 +263,57 @@ async function saveUserToDatabase(email, pw) {
     }
   }
 
-  async function authenticateUser(email, pw) {
-    let connection;
-    console.log("password:", pw);
-    try {
-      // Connect to the Oracle database
-      connection = await oracledb.getConnection(dbConfig);
-      //Execute a query to find the user with the given email and password
-      
+async function authenticateUser(email, pw) {
+  let connection;
+  console.log("password:", pw);
+  try {
+    // Connect to the Oracle database
+    connection = await oracledb.getConnection(dbConfig);
+    //Execute a query to find the user with the given email and password
+    
 
-      const sql = `SELECT * FROM Users WHERE email = :email`;
-      const binds = { email };
-      
-      // Execute the SQL statement
-      const result = await connection.execute(sql, binds, { autoCommit: true });
-      
-      //const binds = { email, pw};
-   
-      // Execute the SQL statement
-      //const result = await connection.execute(sql, binds, { autoCommit: true });
+    const sql = `SELECT * FROM Users WHERE email = :email`;
+    const binds = { email };
+    
+    // Execute the SQL statement
+    const result = await connection.execute(sql, binds, { autoCommit: true });
+    
+    //const binds = { email, pw};
   
-      // Check if the query returned a user
-      
-      
-      if (result.rows.length > 0) {
-        // User found
-        const user = result.rows[0];
-        if (await passwordsMatch(pw, user[3])) {
-          console.log("passwords match");
-          console.log('Authentication successful:', user[1]);
-          return { success: true, userId: user.ID };
-        }
-      
-        
-      } else {
-        // Authentication failed
-        return { success: false, error: 'Invalid email or password' };
+    // Execute the SQL statement
+    //const result = await connection.execute(sql, binds, { autoCommit: true });
+
+    // Check if the query returned a user
+    
+    
+    if (result.rows.length > 0) {
+      // User found
+      const user = result.rows[0];
+      if (await passwordsMatch(pw, user[3])) {
+        console.log("passwords match");
+        console.log('Authentication successful:', user[1]);
+        return { success: true, userId: user.ID };
       }
-    } catch (error) {
-      console.error('Error authenticating user:', error.message);
-      return { success: false, message: 'An error occurred during authentication' };
-    } finally {
-      // Release the database connection
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (error) {
-          console.error('Error closing database connection:', error.message);
-        }
+    
+      
+    } else {
+      // Authentication failed
+      return { success: false, error: 'Invalid email or password' };
+    }
+  } catch (error) {
+    console.error('Error authenticating user:', error.message);
+    return { success: false, message: 'An error occurred during authentication' };
+  } finally {
+    // Release the database connection
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
       }
     }
   }
+}
 
 async function hashPassword(plainPassword) {
   try {
