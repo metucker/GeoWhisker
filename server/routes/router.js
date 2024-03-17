@@ -9,14 +9,14 @@ const { serialize } = require('cookie');
 //const schemas = require('../models/schemas'); 
   //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
 
-async function createSession(userID) {
+async function createSession(userID, token) {
   let connection;
 
   try {
     connection = await oracledb.getConnection(dbConfig);
 
     // Generate a random session token
-    const token = await bcrypt.hash('session', 10);
+    const hashedToken = await bcrypt.hash(token, 10);
 
     // Prepare the SQL query
     const query = `
@@ -28,6 +28,7 @@ async function createSession(userID) {
       userID,
       token,
     };
+    console.log('userID: ', userID, ' & token: ', token);
 
     // Execute the query
     const result = await connection.execute(query, bindParams);
@@ -89,7 +90,6 @@ async function setCookie(email) {
   try {
     // Generate a random session token
     const userID = await getUserID(email);
-    const session = await createSession(userID);
     // Set the session token in the database
     // (Replace 'setSessionTokenInDatabase' with your actual function)
     //await setSessionTokenInDatabase(email, sessionToken);
@@ -103,8 +103,9 @@ async function setCookie(email) {
       httpOnly: true,
       sameSite: 'strict'
     };
+    const cookieString = serialize('geowhisker', cookieOptions);
+    const session = await createSession(userID, serialize('geowhisker', cookieOptions));
     console.log("session:", session);
-    const cookieString = serialize(session.ID, session.token, cookieOptions);
     return cookieString;
   } catch (error) {
     console.error('Error setting session token:', error.message);
@@ -162,6 +163,78 @@ router.post('/login', async (req, res) => {
       res.status(500).json({ error: 'Failed to log in. Please try again.' });
     }
 });
+
+router.post('/addcat', async (req, res) => {
+  try {
+     
+      
+    const result = await createCat(req.body);
+    // Save the user data to the database with schemas
+    // const newData = {email: email, pw: await hashPassword(pw)};
+    // const newUser = new schemas.Users(newData);
+    // await newUser.save();
+            
+
+    // Send a success response
+    res.status(200).json({ message: 'Cat added successfully!' });
+    } catch (error) {
+      console.error('Error adding cat:', error.message);
+      // Send an error response
+      res.status(500).json({ error: 'Failed to add cat. Please try again.' });
+    }
+});
+
+async function createCat(reqBody) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    const { cname,
+      age,
+      cat_aliases,
+      geographical_area,
+      microchipped,
+      chipID,
+      hlength,
+      photo,
+      gender,
+      feral
+    }  = reqBody;
+    const sql = `
+    INSERT INTO Cats (
+      cname, 
+      ageCat, 
+      aliases, 
+      geographical_area, 
+      microchipped, 
+      chipID, 
+      hlength, 
+      photos, 
+      gender, 
+      feral) 
+      VALUES (
+        :cname, 
+        :age, 
+        :cat_aliases, 
+        :geographical_area, 
+        :microchipped, 
+        :chipID, 
+        :hlength, 
+        :photo, 
+        :gender, 
+        :feral)
+    `
+    
+    const binds = { cname, age, cat_aliases, geographical_area, microchipped, chipID, hlength, photo, gender, feral};
+    const result = await connection.execute(sql, binds, { autoCommit: true });
+    if (result.rowsAffected > 0) {
+      console.log('Cat saved to the database:', result.rowsAffected + ' row(s) inserted');
+    }
+  } catch (error) {
+      console.error('Error creating cat:', error.message);
+      throw error; // You might want to handle the error differently based on your application logic
+  }
+
+}
 
 
 router.get('/users', async (req, res) => {

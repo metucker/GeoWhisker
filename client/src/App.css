@@ -71,6 +71,14 @@
   size: fixed;
 }
 
+#form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+}
+
 .App-link {
   color: rgb(64, 224, 208);
 }

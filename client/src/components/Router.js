@@ -4,6 +4,7 @@ import Home from '../pages/Home'
 import Browse from '../pages/Browse'
 import SignUp from '../pages/SignUp'
 import Cats from '../pages/Cats'
+import AddCat from '../pages/AddCat'
 import LogIn from '../pages/LogIn'
 import Footer from './Footer'
 export default function Router() {
@@ -28,6 +29,7 @@ export default function Router() {
             <Route path="/home" element={<Home />} />
             <Route path="/cats" element={<Cats />} />
             <Route path="/browse" element={<Browse />} />
+            <Route path="/addcat" element={<AddCat />} />
           </Route>
         </Routes>
       </BrowserRouter>
