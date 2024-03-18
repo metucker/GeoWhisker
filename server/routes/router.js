@@ -5,9 +5,15 @@ const { dbConfig } = require('../dbConfig');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const { serialize } = require('cookie');
+const multer = require('multer');
+const fs = require('fs');
+//const schemas = require('../models/schemas'); //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
 
-//const schemas = require('../models/schemas'); 
-  //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
+// Middleware to parse JSON in the request body
+router.use(bodyParser.json());
+// Parse application/x-www-form-urlencoded
+router.use(bodyParser.urlencoded({ extended: false }));
+const upload = multer({ dest: 'uploads/' });
 
 async function createSession(userID, token) {
   let connection;
@@ -114,9 +120,6 @@ async function setCookie(email) {
 };
 
 
-// Middleware to parse JSON in the request body
-router.use(bodyParser.json());
-
 router.post('/signup', async (req, res) => {
     try {
         // Extract email and password from req.body
@@ -167,8 +170,20 @@ router.post('/login', async (req, res) => {
 router.post('/addcat', async (req, res) => {
   try {
      
-      
-    const result = await createCat(req.body);
+    const { cname,
+      age,
+      cat_aliases,
+      geographical_area,
+      microchipped,
+      chipID,
+      hlength,
+      photo,
+      gender,
+      feral
+    }  = req.body;
+    console.log(req.body);
+
+    const catID = await createCat(req.body);
     // Save the user data to the database with schemas
     // const newData = {email: email, pw: await hashPassword(pw)};
     // const newUser = new schemas.Users(newData);
@@ -176,8 +191,9 @@ router.post('/addcat', async (req, res) => {
             
 
     // Send a success response
-    res.status(200).json({ message: 'Cat added successfully!' });
-    } catch (error) {
+    console.log('catID to be sent back: ', catID);
+    res.status(200).json({ catID, message: 'Cat added successfully!' });
+  } catch (error) {
       console.error('Error adding cat:', error.message);
       // Send an error response
       res.status(500).json({ error: 'Failed to add cat. Please try again.' });
@@ -186,6 +202,7 @@ router.post('/addcat', async (req, res) => {
 
 async function createCat(reqBody) {
   let connection;
+  console.log("reqBody:", reqBody.photo);
   try {
     connection = await oracledb.getConnection(dbConfig);
     const { cname,
@@ -199,16 +216,19 @@ async function createCat(reqBody) {
       gender,
       feral
     }  = reqBody;
+    console.log("Correct data:", cname, age, cat_aliases, geographical_area, microchipped);
+    
+    let catID;
     const sql = `
+    
     INSERT INTO Cats (
       cname, 
-      ageCat, 
+      age, 
       aliases, 
       geographical_area, 
       microchipped, 
       chipID, 
-      hlength, 
-      photos, 
+      hlength,
       gender, 
       feral) 
       VALUES (
@@ -219,21 +239,104 @@ async function createCat(reqBody) {
         :microchipped, 
         :chipID, 
         :hlength, 
-        :photo, 
         :gender, 
-        :feral)
-    `
+        :feral) 
+        RETURN catID INTO :catID
+      `
     
-    const binds = { cname, age, cat_aliases, geographical_area, microchipped, chipID, hlength, photo, gender, feral};
+    const binds = { 
+      cname,
+      age, 
+      cat_aliases, 
+      geographical_area, 
+      microchipped, 
+      chipID, 
+      hlength, 
+      gender, 
+      feral,
+      catID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+    }; 
     const result = await connection.execute(sql, binds, { autoCommit: true });
+    console.log(result.rowsAffected + ' row(s) inserted');
     if (result.rowsAffected > 0) {
       console.log('Cat saved to the database:', result.rowsAffected + ' row(s) inserted');
+      //retrieve catID and send it back in response
+      sqlGetCatID = `
+      SELECT catID FROM Cats WHERE 
+        cname = :cname AND 
+        age = :age AND 
+        aliases = :cat_aliases AND 
+        geographical_area = :geographical_area AND 
+        microchipped = :microchipped AND 
+        chipID = :chipID AND 
+        hlength = :hlength 
+      `
+      if (result.outBinds && result.outBinds.catID) {
+        const newCatID = result.outBinds.catID[0]; // Extract the catID from the output bind variable
+        console.log('Cat saved to the database with catID:', newCatID);
+        // Now you have the new catID, you can use it for further processing
+        return newCatID;
+      }
+    
+      //call addCatHealth function
     }
   } catch (error) {
       console.error('Error creating cat:', error.message);
       throw error; // You might want to handle the error differently based on your application logic
   }
 
+}
+
+router.post('/addcat/photo', upload.single('photo'), async (req, res) => {
+  try { 
+
+    const { catID } = req.body;
+    const uploadedPhoto = req.file;
+    const path = uploadedPhoto.path;
+
+    console.log("req.file:", req.file, ' & catID: ', catID, ' & path:', path);
+
+    if (catID && uploadedPhoto) {
+      await addCatPhotos(catID, uploadedPhoto, path);    
+    } else {
+      console.error('Invalid catID or photo');
+      res.status(400).json({ error: 'Invalid catID or photo' });
+    }
+    
+    res.status(200).json({ message: 'Photo added successfully!' });
+
+  } catch (error) {
+    console.error('Error adding photo in post to /addcat/photo:', error.message);
+    // Send an error response
+    res.status(500).json({ error: 'Failed to add photo. Please try again.' });
+  }
+});
+
+
+async function addCatPhotos(catID, photo, path) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    const photoContent = fs.readFileSync(photo.path);
+
+    console.log('catID:', catID, ' & photo:', photoContent, ' & path:', path);
+    const sql = `
+    INSERT INTO CatPhotos (photo, path, catID) VALUES (:photo, :path, :catID)
+    `
+    const binds = {
+      photo: { val: photoContent, type: oracledb.BLOB  },
+      path: path, // Access path from req.file
+      catID: { val: catID, type: oracledb.NUMBER } // Use catID passed from the request body
+    };
+    const result = await connection.execute(sql, binds, { autoCommit: true });
+    if (result.rowsAffected > 0) {
+      console.log('Photo saved to the database:', result.rowsAffected + ' row(s) inserted: ', result.rowsAffected[0]);
+    }
+  } catch (error) {
+      console.error('Error adding photo in addCatPhotos:', error.message);
+      throw error; // You might want to handle the error differently based on your application logic
+  }
 }
 
 

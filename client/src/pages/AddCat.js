@@ -62,40 +62,68 @@ const AddCat = () => {
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Submit form data to the backend
-    const formData = {
-    cname,
-    age,
-    cat_aliases,
-    geographical_area,
-    microchipped,
-    chipID,
-    hlength,
-    photo,
-    gender,
-    feral
-    };
+    
+    //Basic Information
+    const formData = new FormData();
+    formData.append('cname', cname);
+    formData.append('age', age);
+    formData.append('cat_aliases', cat_aliases);
+    formData.append('geographical_area', geographical_area);
+    formData.append('microchipped', microchipped);
+    formData.append('chipID', chipID);
+    formData.append('hlength', hlength);
+    formData.append('photo', photo);
+    formData.append('gender', gender);
+    formData.append('feral', feral);
+
+    //Health Information (TODO)
+
+    const jsonFormData = {};
+    for (const [key, value] of formData.entries()) {
+        jsonFormData[key] = value;
+    }
 
     try {
-        const response = await fetch('http://localhost:4000/addcat', {
-            method: 'POST',
-          body: formData,
-        });
+      const response = await fetch('http://localhost:4000/addcat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonFormData),
+      });
+    console.log("Form Data: ", jsonFormData);
+
+
     
         if (response.ok) {
           console.log('Cat added successfully');
-          // Optionally, navigate to another page or perform other actions upon successful addition
+          const responseData = await response.json(); // Parse response body
+          const catID = responseData.catID; // Extract catID from response
+          console.log('Response Data:', responseData);
+          console.log('Cat ID:', catID);
+          //Photos associated with new cat
+
+          const photoData = new FormData();
+          photoData.append('catID', catID);
+          photoData.append('photo', photo);
+          const response2 = await fetch('http://localhost:4000/addcat/photo', {
+            method: 'POST',
+            body: photoData,
+          });
+          console.log("Photo Data: ", photoData);
         } else {
           console.error('Failed to add cat');
-          // Handle error cases
+        //   // Handle error cases
+
         }
       } catch (error) {
         console.error('Error adding cat:', error.message);
         // Handle network errors or other exceptions
       }
     // Call a function to submit the form data to the backend
-    console.log(formData); // For testing, log the form data to the console
-  };
+    for (const entry of formData.entries()) {
+      console.log(entry[0], ':', entry[1]);
+    }  };
 
   return (
     <>
