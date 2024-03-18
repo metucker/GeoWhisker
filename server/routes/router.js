@@ -320,14 +320,14 @@ async function addCatPhotos(catID, photo, path) {
 
     const photoContent = fs.readFileSync(photo.path);
 
-    console.log('catID:', catID, ' & photo:', photoContent, ' & path:', path);
+    console.log('catID:', catID, ' & typeof photoContent and photo:', typeof photoContent, photoContent, ' & path:', path);
     const sql = `
     INSERT INTO CatPhotos (photo, path, catID) VALUES (:photo, :path, :catID)
     `
     const binds = {
-      photo: { val: photoContent, type: oracledb.BLOB  },
+      photo: { val: photoContent,  type: oracledb.BUFFER},
       path: path, // Access path from req.file
-      catID: { val: catID, type: oracledb.NUMBER } // Use catID passed from the request body
+      catID: catID// Use catID passed from the request body
     };
     const result = await connection.execute(sql, binds, { autoCommit: true });
     if (result.rowsAffected > 0) {
