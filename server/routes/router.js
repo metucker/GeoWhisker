@@ -261,16 +261,16 @@ async function createCat(reqBody) {
     if (result.rowsAffected > 0) {
       console.log('Cat saved to the database:', result.rowsAffected + ' row(s) inserted');
       //retrieve catID and send it back in response
-      sqlGetCatID = `
-      SELECT catID FROM Cats WHERE 
-        cname = :cname AND 
-        age = :age AND 
-        aliases = :cat_aliases AND 
-        geographical_area = :geographical_area AND 
-        microchipped = :microchipped AND 
-        chipID = :chipID AND 
-        hlength = :hlength 
-      `
+      // sqlGetCatID = `
+      // SELECT catID FROM Cats WHERE 
+      //   cname = :cname AND 
+      //   age = :age AND 
+      //   aliases = :cat_aliases AND 
+      //   geographical_area = :geographical_area AND 
+      //   microchipped = :microchipped AND 
+      //   chipID = :chipID AND 
+      //   hlength = :hlength 
+      // `
       if (result.outBinds && result.outBinds.catID) {
         const newCatID = result.outBinds.catID[0]; // Extract the catID from the output bind variable
         console.log('Cat saved to the database with catID:', newCatID);
@@ -321,23 +321,163 @@ async function addCatPhotos(catID, photo, path) {
     const photoContent = fs.readFileSync(photo.path);
 
     console.log('catID:', catID, ' & typeof photoContent and photo:', typeof photoContent, photoContent, ' & path:', path);
+    
     const sql = `
-    INSERT INTO CatPhotos (photo, path, catID) VALUES (:photo, :path, :catID)
+    INSERT INTO CatPhotos (photo, path, catID) 
+    VALUES (:photo, :path, :catID)
+    RETURN photoID INTO :photoID
     `
     const binds = {
       photo: { val: photoContent,  type: oracledb.BUFFER},
       path: path, // Access path from req.file
-      catID: catID// Use catID passed from the request body
+      catID: catID,// Use catID passed from the request body
+      photoID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
     };
     const result = await connection.execute(sql, binds, { autoCommit: true });
     if (result.rowsAffected > 0) {
       console.log('Photo saved to the database:', result.rowsAffected + ' row(s) inserted: ', result.rowsAffected[0]);
+      
+      if (result.outBinds && result.outBinds.photoID) {
+        const newPhotoID = result.outBinds.photoID[0]; // Extract the catID from the output bind variable
+        console.log('Photo saved to the database with photoID:', newPhotoID);
+        // Now you have the new catID, you can use it for further processing
+        await updateProfilePhoto(connection, catID, newPhotoID);
+      }
     }
   } catch (error) {
       console.error('Error adding photo in addCatPhotos:', error.message);
       throw error; // You might want to handle the error differently based on your application logic
   }
 }
+
+async function updateProfilePhoto(connection, catID, photoID) {
+  const sql = `
+    SELECT profPhotoID
+    FROM ProfilePhotos
+    WHERE catID = :catID
+  `;
+  const binds = { catID };
+  const result = await connection.execute(sql, binds);
+  if (result.rows.length > 0) {
+    // Update existing profile photo entry
+    const profPhotoID = result.rows[0].profPhotoID;
+    const updateSql = `
+      UPDATE ProfilePhotos
+      SET photoID = :photoID
+      WHERE profPhotoID = :profPhotoID
+    `;
+    const updateBinds = {
+      photoID: photoID, // Assuming you have the photoID of the newly inserted photo
+      profPhotoID: profPhotoID
+    };
+    await connection.execute(updateSql, updateBinds, { autoCommit: true });
+  } else {
+    // Insert new profile photo entry
+    const insertSql = `
+      INSERT INTO ProfilePhotos (catID, photoID) VALUES (:catID, :photoID)
+    `;
+    const insertBinds = {
+      catID: catID,
+      photoID: photoID
+    };
+    await connection.execute(insertSql, insertBinds, { autoCommit: true });
+  }
+}
+
+router.get('/cats/:catID/photo', async (req, res) => {
+  try {
+    const catID = req.params.catID;
+
+    // Fetch the photo data from the database based on the catID
+    const photoData = await getCatPhoto(catID);
+
+    // Check if photo data exists
+    if (!photoData) {
+      return res.status(404).json({ error: 'Photo not found' });
+    }
+
+    // Set the appropriate content type header for the response
+    res.setHeader('Content-Type', 'image/jpeg');
+
+    // Send the photo data in the response
+    res.send(photoData);
+  } catch (error) {
+    console.error('Error fetching cat photo:', error.message);
+    res.status(500).json({ error: 'Failed to fetch cat photo. Please try again.' });
+  }
+});
+
+// Function to fetch cat photo data from the database
+async function getCatPhoto(catID) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    // Query to fetch the photo data based on the catID
+    const sql = `
+      SELECT photo FROM CatPhotos WHERE catID = :catID
+    `;
+    const binds = { catID };
+
+    // Execute the query
+    const result = await connection.execute(sql, binds);
+
+    // Check if photo data exists
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    // Return the photo data (assuming the photo column contains the binary photo data)
+    return result.rows[0][0];
+  } catch (error) {
+    throw error;
+  } finally {
+    // Close the connection
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+  }
+}
+
+router.get('/cats', async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(dbConfig);
+
+    const sql = `
+      SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
+      FROM Cats c
+      INNER JOIN ProfilePhotos pp ON c.catID = pp.catID
+      INNER JOIN CatPhotos p ON pp.photoID = p.photoID
+    `;
+
+    const result = await connection.execute(sql);
+
+    const cats = result.rows.map(row => ({
+      catID: row[0],
+      cname: row[1],
+      age: row[2],
+      aliases: row[3],
+      geographical_area: row[4],
+      microchipped: row[5],
+      chipID: row[6],
+      hlength: row[7],
+      gender: row[8],
+      feral: row[9],
+      photo: row[10].toString('base64') // Convert the photo to base64 to send it in the response
+    }));
+
+    console.log("RETRIEVED PHOTOS:", cats[0].photo.BUFFER)
+
+    res.status(200).json(cats);
+  } catch (error) {
+    console.error('Error fetching cats:', error.message);
+    res.status(500).json({ error: 'Failed to fetch cats. Please try again.' });
+  }
+});
 
 
 router.get('/users', async (req, res) => {
