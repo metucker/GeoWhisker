@@ -456,21 +456,26 @@ router.get('/cats', async (req, res) => {
 
     const result = await connection.execute(sql);
 
-    const cats = result.rows.map(row => ({
-      catID: row[0],
-      cname: row[1],
-      age: row[2],
-      aliases: row[3],
-      geographical_area: row[4],
-      microchipped: row[5],
-      chipID: row[6],
-      hlength: row[7],
-      gender: row[8],
-      feral: row[9],
-      photo: row[10].toString('base64') // Convert the photo to base64 to send it in the response
+    const cats = await Promise.all(result.rows.map(async row => {
+      const photoBuffer = await row[10].getData();
+      const base64String = photoBuffer.toString('base64');
+    
+      return {
+        catID: row[0],
+        cname: row[1],
+        age: row[2],
+        aliases: row[3],
+        geographical_area: row[4],
+        microchipped: row[5],
+        chipID: row[6],
+        hlength: row[7],
+        gender: row[8],
+        feral: row[9],
+        photo: base64String
+      };
     }));
 
-    console.log("RETRIEVED PHOTOS:", cats[0].photo.BUFFER)
+    console.log("RETRIEVED PHOTOS:", cats[0].photo)
 
     res.status(200).json(cats);
   } catch (error) {
