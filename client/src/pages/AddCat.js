@@ -129,7 +129,7 @@ const AddCat = () => {
   return (
     <>
     <div class="addCat">
-      <h2>Add a Cat</h2>
+      <h1>Add a Cat</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Cat Name: 

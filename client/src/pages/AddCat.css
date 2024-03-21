@@ -1,5 +1,17 @@
 /* AddCat.css */
 
+#form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    fill: #1e8c94;
+}
+
 .addCat, .row1, .addCat h2 {
     display: center;
     flex-wrap: wrap;
@@ -10,6 +22,7 @@
 
 .addCat label {
     margin: 5px;
+    font-weight: bold;
 }
 
 .addCat input {
