@@ -13,11 +13,12 @@ const Cat = () => {
   }, []);
 
   return (
-    <div className="cat-page">
+    <>
       <h1>Cats</h1>
-      <CatList cats={cats} />
-    </div>
-  );
-};
+      <div className="cat-page">
+        <CatList cats={cats} />
+      </div>
+    </>
+)};
 
 export default Cat;

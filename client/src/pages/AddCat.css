@@ -1,6 +1,6 @@
 /* AddCat.css */
 
-#form {
+#form, .cat-page {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,7 +29,7 @@
     margin-top: 5px;
 }
 
-#label, #input {
+#label, #input, #h1 {
     margin: 5px;
 }
 
