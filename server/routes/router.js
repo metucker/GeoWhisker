@@ -484,6 +484,45 @@ router.get('/cats', async (req, res) => {
   }
 });
 
+router.get('/cats/:catID', async (req, res) => {
+  try {
+    const catID = req.params.catID;
+
+    // Fetch cat information from the database based on the catID
+    const sql = `
+      SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
+      FROM Cats c
+      INNER JOIN ProfilePhotos pp ON c.catID = pp.catID
+      INNER JOIN CatPhotos p ON pp.photoID = p.photoID
+      WHERE c.catID = :catID
+    `;
+
+    const binds = {
+      catID: parseInt(catID) // Assuming catID is a number
+    };
+
+    const options = {
+      outFormat: oracledb.OUT_FORMAT_OBJECT // Retrieve data as an object
+    };
+    connection = await oracledb.getConnection(dbConfig);
+
+    const result = await connection.execute(sql, binds, options);
+
+    if (result.rows.length > 0) {
+      // Cat found, send cat information in the response
+      const cat = result.rows[0];
+      console.log("cat found: ", cat)
+      res.status(200).json(cat);
+    } else {
+      // Cat not found
+      res.status(404).json({ error: 'Cat not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching cat:', error.message);
+    res.status(500).json({ error: 'Failed to fetch cat. Please try again.' });
+  }
+});
+
 
 router.get('/users', async (req, res) => {
   let connection;

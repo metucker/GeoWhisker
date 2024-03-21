@@ -7,6 +7,8 @@ import Cats from '../pages/Cats'
 import AddCat from '../pages/AddCat'
 import LogIn from '../pages/LogIn'
 import Footer from './Footer'
+import CatProfile from '../pages/CatProfile'; // Assuming you have a component for listing cats
+
 export default function Router() {
 
     const Layout = () => {
@@ -27,7 +29,11 @@ export default function Router() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<LogIn />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/cats" element={<Cats />} />
+            {/* <Route path="/cats" element={<Cats />}>
+              <Route path=":catID" element={<CatProfile />} />
+            </Route> */}
+            <Route path="/cats" element={<Cats />}/>
+            <Route path="/cats/:catID" element={<CatProfile />}/>
             <Route path="/browse" element={<Browse />} />
             <Route path="/addcat" element={<AddCat />} />
           </Route>
