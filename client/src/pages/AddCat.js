@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
+import './AddCat.css';
 
 const AddCat = () => {
   // State variables for form fields
@@ -127,7 +128,7 @@ const AddCat = () => {
 
   return (
     <>
-    <div>
+    <div class="addCat">
       <h2>Add a Cat</h2>
       <form onSubmit={handleSubmit}>
         <label>

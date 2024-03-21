@@ -1,0 +1,25 @@
+/* AddCat.css */
+
+.addCat, .row1, .addCat h2 {
+    display: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 20px; /* Add spacing between form fields */
+    padding: 5px;
+  }
+
+.addCat label {
+    margin: 5px;
+}
+
+.addCat input {
+    margin-top: 5px;
+}
+
+#label, #input {
+    margin: 5px;
+}
+
+#select {
+    padding: 20px;
+}
