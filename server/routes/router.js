@@ -475,7 +475,7 @@ router.get('/cats', async (req, res) => {
       };
     }));
 
-    console.log("RETRIEVED PHOTOS:", cats[0].photo)
+    //console.log("RETRIEVED PHOTOS:", cats[0].photo)
 
     res.status(200).json(cats);
   } catch (error) {
@@ -484,11 +484,11 @@ router.get('/cats', async (req, res) => {
   }
 });
 
-router.get('/cats/:catID', async (req, res) => {
+router.get('/cat/:catID', async (req, res) => {
   try {
     const catID = req.params.catID;
+    const connection = await oracledb.getConnection(dbConfig);
 
-    // Fetch cat information from the database based on the catID
     const sql = `
       SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
       FROM Cats c
@@ -497,32 +497,37 @@ router.get('/cats/:catID', async (req, res) => {
       WHERE c.catID = :catID
     `;
 
-    const binds = {
-      catID: parseInt(catID) // Assuming catID is a number
-    };
+    const result = await connection.execute(sql, { catID: parseInt(catID) });
 
-    const options = {
-      outFormat: oracledb.OUT_FORMAT_OBJECT // Retrieve data as an object
-    };
-    connection = await oracledb.getConnection(dbConfig);
+    const cat = await Promise.all(result.rows.map(async row => {
+      const photoBuffer = await row[10].getData();
+      const base64String = photoBuffer.toString('base64');
+    
+      return {
+        catID: row[0],
+        cname: row[1],
+        age: row[2],
+        aliases: row[3],
+        geographical_area: row[4],
+        microchipped: row[5],
+        chipID: row[6],
+        hlength: row[7],
+        gender: row[8],
+        feral: row[9],
+        photo: base64String
+      };
+    }));
 
-    const result = await connection.execute(sql, binds, options);
+    console.log("RETRIEVED PHOTOS:", cat[0].photo)
 
-    if (result.rows.length > 0) {
-      // Cat found, send cat information in the response
-      const cat = result.rows[0];
-      console.log("cat found: ", cat)
-      res.status(200).json(cat);
-    } else {
-      // Cat not found
-      res.status(404).json({ error: 'Cat not found' });
-    }
+    res.status(200).json(cat);
   } catch (error) {
     console.error('Error fetching cat:', error.message);
     res.status(500).json({ error: 'Failed to fetch cat. Please try again.' });
   }
 });
 
+// USERS
 
 router.get('/users', async (req, res) => {
   let connection;

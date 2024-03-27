@@ -8,12 +8,13 @@ const CatProfile = () => {
   const [cat, setCat] = useState(null);
   console.log('Cat ID:', catID);
 
+
   useEffect(() => {
     // Fetch data about the cat with the specified ID
     const fetchCat = async () => {
       try {
         console.log('Fetching cat with ID:', catID);
-        const response = await fetch(`http://localhost:4000/cats/${catID}`);
+        const response = await fetch(`http://localhost:4000/cat/${catID}`);
         if (response.ok) {
           const data = await response.json();
           console.log('Cat data:', data);
@@ -33,8 +34,10 @@ const CatProfile = () => {
     <div>
       {cat ? (
         <div>
-          <h2>{cat.cname}</h2>
-          <p>Age: {cat.age}</p>
+          <h1>Cat Profile</h1>
+          <img src={`data:image/jpeg;base64,${cat[0].photo}`} alt={cat.cname} />
+          <h2>{cat[0].cname}</h2>
+          <p>Age: {cat[0].age}</p>
           {/* Display other cat details */}
         </div>
       ) : (
