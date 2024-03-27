@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import './AddCat.css';
+import AddCatMap from '../components/AddCatMap';
+
 
 const AddCat = () => {
   // State variables for form fields
@@ -154,6 +156,7 @@ const AddCat = () => {
         <label>
           Geographical Area: 
           <input type="text" value={geographical_area} onChange={handleGeoChange} />
+          <AddCatMap />
         </label>
         <br />
         <label>
