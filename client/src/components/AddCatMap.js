@@ -24,7 +24,8 @@ const AddCatMap = () => {
         } else {
             // Load the Google Maps API script
             const googleMapsScript = document.createElement('script');
-            googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=drawing`;
+            console.log("TEST: ", process.env.REACT_APP_KEY1);
+            googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=drawing`;
             window.document.body.appendChild(googleMapsScript);
             googleMapsScript.addEventListener('load', onLoad);
         }
@@ -57,9 +58,9 @@ const AddCatMap = () => {
     };
 
     return (
-        <LoadScript googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY}>
+        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
             <GoogleMap
-                mapContainerStyle={{ width: '100%', height: '400px' }}
+                mapContainerStyle={{ width: '100%', height: '400px', maxWidth: '800px'}}
                 zoom={8}
                 center={defaultLocation}
                 onLoad={map => setMap(map)}
