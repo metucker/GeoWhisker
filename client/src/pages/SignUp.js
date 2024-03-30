@@ -3,9 +3,9 @@ import '../App.css';
 import Home from './Home';
 //import '../components/Authentication/Authentication.css';
 import { useNavigate } from 'react-router-dom';
+import LogIn from './LogIn';
 
-
-const SignUp = ({ handleLoginSuccess }) => {
+const SignUp = ({ handleSignUpSuccess }) => {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const SignUp = ({ handleLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        handleLoginSuccess();
+        handleSignUpSuccess();
         navigate('/home');
         console.log('User signed up successfully!');
       } else {
@@ -52,7 +52,8 @@ const SignUp = ({ handleLoginSuccess }) => {
       });
 
       if (response.ok) {
-        // Handle success, e.g., redirect to another page
+        // Handle success, e.g., redirect to another pag
+        handleSignUpSuccess();
         console.log('User logged in successfully!');
       } else {
         // Handle errors, e.g., display an error message
@@ -88,9 +89,9 @@ const SignUp = ({ handleLoginSuccess }) => {
           />
         </label>
         <button type="submit">Sign Up</button>
-        <div className="returningUser">
-        Returning user? <a href="/login">Log in</a> here.
-        </div>
+        {/* <div className="returningUser">
+        Returning user? <a href="/home">Log in</a> here.
+        </div> */}
       </form>
     </div>
     </div>

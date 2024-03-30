@@ -2,6 +2,7 @@ import '../App.css';
 //import '../components/Authentication/Authentication.css';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import SignUp from './SignUp';
 
 const LogIn = ({ handleLoginSuccess }) => {
   const [email, checkEmail] = useState('');
@@ -22,18 +23,24 @@ const LogIn = ({ handleLoginSuccess }) => {
           email: email,
           pw: password,
         }),
+        credentials: 'include', // Include cookies in the request and response
       });
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        console.log('User logged in successfully!', response);
-        handleLoginSuccess();
+        if (typeof handleLoginSuccess === 'function') {
+          await handleLoginSuccess();
+          console.log('User logged in successfully!', response);
+        } else {
+          console.log('Type of handleLoginSuccess:', typeof handleLoginSuccess);
+          console.error('handleLoginSuccess is not a function!');
+        }
       } else {
         // Handle errors, e.g., display an error message
-        console.error('Failed to sign up. Please try again.');
+        console.error('Failed to login. Please try again.');
       }
     } catch (error) {
-      console.error('Error during signup:', error.message);
+      console.error('Error during login:', error.message);
     }
   };
 
@@ -63,9 +70,9 @@ const LogIn = ({ handleLoginSuccess }) => {
             />
         </div>
         <button type="submit">Log In</button>
-        <div className="newUser">
-        New user? <a href="/signup">Sign up</a> here.
-        </div>
+        {/* <div className="newUser">
+        New user? <a href="/home">Sign up</a> here.
+        </div> */}
       </form>
     </div>
     </div>

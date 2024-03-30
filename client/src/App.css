@@ -17,14 +17,22 @@
   text-align: center;
 }
 
-.Home, .Signup, .LogIn {
+.Home, .Signup, .LogIn, .Main {
   background-color: #282c34;
-  min-height: 80vh;
+  min-height: 40vh;
+  padding-bottom: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+@media screen and (min-width: 800px) {
+  .container{
+    margin: 20px;
+  }
+  
 }
 
 .container, .columns {

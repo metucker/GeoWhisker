@@ -1,0 +1,21 @@
+/* LoadingSpinner.css */
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spinner {
+    animation: rotate 2s linear infinite;
+    stroke: #3f51b5;
+    stroke-dasharray: 150;
+    stroke-dashoffset: 75;
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
