@@ -26,7 +26,7 @@ const LogIn = ({ handleLoginSuccess }) => {
 
       if (response.ok) {
         // Handle success, e.g., redirect to another page
-        console.log('User logged in successfully!');
+        console.log('User logged in successfully!', response);
         handleLoginSuccess();
       } else {
         // Handle errors, e.g., display an error message

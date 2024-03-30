@@ -73,8 +73,9 @@ async function getUserID(email) {
     // Execute the query
     const result = await connection.execute(query, bindParams);
     // Check if the query returned any rows
+    console.log("result.rows:", result.rows, " or result: ", result.ID);
     if (result.rows.length > 0) {
-      return result.rows[0][0];
+      return result.rows[0];
     } else {
       return -1;
     }
@@ -96,6 +97,7 @@ async function setCookie(email) {
   try {
     // Generate a random session token
     const userID = await getUserID(email);
+    console.log("userID in SETCOOKIE:", userID);
     // Set the session token in the database
     // (Replace 'setSessionTokenInDatabase' with your actual function)
     //await setSessionTokenInDatabase(email, sessionToken);
@@ -650,11 +652,13 @@ async function authenticateUser(email, pw) {
 
     // Check if the query returned a user
     
+    console.log("result.rows:", result.rows);
     
     if (result.rows.length > 0) {
       // User found
       const user = result.rows[0];
-      if (await passwordsMatch(pw, user[3])) {
+      console.log("hashed pw of user in db:", user.pw)
+      if (await passwordsMatch(pw, user[5])) {
         console.log("passwords match");
         console.log('Authentication successful:', user[1]);
         return { success: true, userId: user.ID };

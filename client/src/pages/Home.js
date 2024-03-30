@@ -79,7 +79,7 @@ function Home() {
             <div className='options'>
               <button onClick={() => navigate('/browse')}>Browse Cats <FontAwesomeIcon icon={faMagnifyingGlass}/></button>
               <button onClick={() => navigate('/addcat')}>Add Cat <FontAwesomeIcon icon={faCat}/></button>
-              <button onClick={() => navigate('/editprofile')}>Edit Profile <FontAwesomeIcon icon={faUser}/></button>
+              <button onClick={() => navigate('/user')}>Edit Profile <FontAwesomeIcon icon={faUser}/></button>
             </div>
 
             {/* Section for Your Cats and Your Cat Map */}
