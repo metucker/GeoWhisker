@@ -8,22 +8,61 @@ const { serialize } = require('cookie');
 const multer = require('multer');
 const fs = require('fs');
 const crypto = require('crypto');
+const cookieParser = require('cookie-parser');
+
 //const schemas = require('../models/schemas'); //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
 
 // Middleware to parse JSON in the request body
 router.use(bodyParser.json());
+router.use(cookieParser());
 // Parse application/x-www-form-urlencoded
 router.use(bodyParser.urlencoded({ extended: false }));
 const upload = multer({ dest: 'uploads/' });
 
+// Authentication middleware
+const authenticateUser = async (req, res, next) => {
+  const sessionToken = req.cookies.geowhisker; // Assuming the cookie name is 'geowhisker'
+  console.log("sessionToken:", sessionToken);
+
+  if (!sessionToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // Verify session token against database
+    const user = await verifySession(sessionToken); // Implement this function to verify the session token
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Attach the user object to the request for further processing if needed
+    req.user = user;
+
+    next(); // Continue to the next middleware
+  } catch (error) {
+    console.error('Error authenticating user:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Example of a gated endpoint
+router.get('/session', authenticateUser, (req, res) => {
+  // If the execution reaches here, it means the user is authenticated
+  res.json({ message: 'Welcome to the gated page!' });
+});
+
 async function createSession(userID, token) {
   let connection;
+
+  console.log("\n BEFORE createSession!!!     userID:", userID, " & token:", token)
 
   try {
     connection = await oracledb.getConnection(dbConfig);
 
     // Generate a random session token
-    const hashedToken = await bcrypt.hash(token, 10);
+    // const hashedToken = await bcrypt.hash(token, 10);
+    const hashedToken = token;
 
     // Prepare the SQL query
     const query = `
@@ -35,11 +74,10 @@ async function createSession(userID, token) {
       userID,
       token: hashedToken,
     };
-    console.log('userID: ', userID, ' & token: ', hashedToken);
 
     // Execute the query
-    const result = await connection.execute(query, bindParams);
-    console.log('result', result.lastRowid);
+    const result = await connection.execute(query, bindParams, { autoCommit: true });
+    console.log('\nSession inserted successfully: ', result.lastRowid);
     return  result.lastRowid;//TODO is this okay lol
   } catch (error) {
     console.error('Error creating session:', error);
@@ -53,8 +91,56 @@ async function createSession(userID, token) {
       }
     }
   }
-
 }
+
+async function verifySession(sessionToken) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    // await bcrypt.compare(sessionToken, hashedToken, (err, res) => {});
+
+    // Prepare the SQL query
+    const query = `
+      SELECT userID FROM Sessions WHERE token = :token
+    `;
+
+    // Bind parameters for the query
+    const bindParams = {
+      token: sessionToken,
+    };
+
+    console.log("\n ATTEMPTING TO VERIFY THIS SESSIONS: ", sessionToken);
+
+    // Execute the query
+    const result = await connection.execute(query, bindParams);
+
+    // Check if a session was found
+    if (result.rows.length === 1) {
+      // Session found, return the user ID
+      console.log("\nSession verified successfully!");
+      return true; // Assuming the first column contains the user ID
+    } else {
+      // No session found with the given token
+      console.log("\nSession unverified; access denied!");
+
+      return false;
+    }
+  } catch (error) {
+    console.error('Error verifying session:', error);
+    throw error; // You might want to handle the error differently based on your application logic
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+  }
+}
+
 async function getUserID(email) {
   let connection;
 
@@ -74,8 +160,8 @@ async function getUserID(email) {
     // Execute the query
     const result = await connection.execute(query, bindParams);
     // Check if the query returned any rows
-    console.log("result.rows[0][0]:", result.rows[0][0], " or result: ", result.ID);
     if (result.rows.length > 0) {
+      console.log("User ID retrieved successfully!");
       return result.rows[0][0];
     } else {
       return -1;
@@ -104,7 +190,7 @@ async function setCookie(email) {
     const userID = await getUserID(email);
     // Create a new session in the database and get the session ID
     const token = await generateRandomToken(16); // Generate a random token of length 16
-    const sessionID = await createSession(userID, 'some_random_token'); // Replace 'some_random_token' with an actual token if needed
+    //const sessionID = await createSession(userID, token); // Replace 'some_random_token' with an actual token if needed
 
     // Set the session ID in a cookie
     const cookieOptions = {
@@ -116,7 +202,10 @@ async function setCookie(email) {
       httpOnly: true,
       sameSite: 'lax'
     };
-    const cookieString = serialize('geowhisker', sessionID, cookieOptions); // Set the session ID in the cookie
+    const cookieString = serialize('geowhisker', token, cookieOptions); // Set the session ID in the cookie
+    console.log("\nCookie set successfully:", cookieString);
+
+    await createSession(userID, token); // Replace 'some_random_token' with an actual token if needed
 
     return cookieString;
   } catch (error) {
@@ -265,9 +354,8 @@ async function createCat(reqBody) {
       catID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
     }; 
     const result = await connection.execute(sql, binds, { autoCommit: true });
-    console.log(result.rowsAffected + ' row(s) inserted');
     if (result.rowsAffected > 0) {
-      console.log('Cat saved to the database:', result.rowsAffected + ' row(s) inserted');
+      console.log('\nCat saved to the database:', result.rowsAffected + ' row(s) inserted');
       //retrieve catID and send it back in response
       // sqlGetCatID = `
       // SELECT catID FROM Cats WHERE 
@@ -281,7 +369,7 @@ async function createCat(reqBody) {
       // `
       if (result.outBinds && result.outBinds.catID) {
         const newCatID = result.outBinds.catID[0]; // Extract the catID from the output bind variable
-        console.log('Cat saved to the database with catID:', newCatID);
+        console.log('\nCat saved to the database with catID:', newCatID);
         // Now you have the new catID, you can use it for further processing
         return newCatID;
       }
@@ -343,11 +431,10 @@ async function addCatPhotos(catID, photo, path) {
     };
     const result = await connection.execute(sql, binds, { autoCommit: true });
     if (result.rowsAffected > 0) {
-      console.log('Photo saved to the database:', result.rowsAffected + ' row(s) inserted: ', result.rowsAffected[0]);
       
       if (result.outBinds && result.outBinds.photoID) {
         const newPhotoID = result.outBinds.photoID[0]; // Extract the catID from the output bind variable
-        console.log('Photo saved to the database with photoID:', newPhotoID);
+        console.log('\nPhoto saved to the database with photoID:', newPhotoID);
         // Now you have the new catID, you can use it for further processing
         await updateProfilePhoto(connection, catID, newPhotoID);
       }
@@ -620,10 +707,10 @@ async function saveUserToDatabase(email, pw) {
       // Execute the SQL statement
       const result = await connection.execute(sql, binds, { autoCommit: true });
       
-      console.log('User saved to the database:', result.rowsAffected + ' row(s) inserted');
+      console.log('\nUser saved to the database:', result.rowsAffected + ' row(s) inserted');
       
     } catch (error) {
-      console.error('Error saving user to the database:', error.message);
+      console.error('\nError saving user to the database:', error.message);
     } finally {
       // Release the database connection
       if (connection) {
@@ -651,22 +738,12 @@ async function authorizeUser(email, pw) {
     // Execute the SQL statement
     const result = await connection.execute(sql, binds, { autoCommit: true });
     
-    //const binds = { email, pw};
-  
-    // Execute the SQL statement
-    //const result = await connection.execute(sql, binds, { autoCommit: true });
-
-    // Check if the query returned a user
-    
-    console.log("result.rows:", result.rows);
-    
     if (result.rows.length > 0) {
       // User found
       const user = result.rows[0];
       console.log("hashed pw of user in db:", user.pw)
       if (await passwordsMatch(pw, user[5])) {
-        console.log("passwords match");
-        console.log('Authentication successful:', user[1]);
+        console.log("\nPasswords match!",'Authentication successful:', user[1]);
         return { success: true, userId: user.ID };
       }
     
@@ -676,7 +753,7 @@ async function authorizeUser(email, pw) {
       return { success: false, error: 'Invalid email or password' };
     }
   } catch (error) {
-    console.error('Error authenticating user:', error.message);
+    console.error('Error authorizing user:', error.message);
     return { success: false, message: 'An error occurred during authentication' };
   } finally {
     // Release the database connection
@@ -689,39 +766,6 @@ async function authorizeUser(email, pw) {
     }
   }
 }
-
-// Authentication middleware
-const authenticateUser = async (req, res, next) => {
-  const sessionToken = req.cookies.geowhisker; // Assuming the cookie name is 'geowhisker'
-  
-  if (!sessionToken) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  try {
-    // Verify session token against database
-    const user = await verifySession(sessionToken); // Implement this function to verify the session token
-
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Attach the user object to the request for further processing if needed
-    req.user = user;
-
-    next(); // Continue to the next middleware
-  } catch (error) {
-    console.error('Error authenticating user:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-// Example of a gated endpoint
-router.get('/session', authenticateUser, (req, res) => {
-  // If the execution reaches here, it means the user is authenticated
-  res.json({ message: 'Welcome to the gated page!' });
-});
-
 
 async function hashPassword(plainPassword) {
   try {

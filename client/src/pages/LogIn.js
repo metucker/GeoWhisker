@@ -2,7 +2,6 @@ import '../App.css';
 //import '../components/Authentication/Authentication.css';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import SignUp from './SignUp';
 
 const LogIn = ({ handleLoginSuccess }) => {
   const [email, checkEmail] = useState('');

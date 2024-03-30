@@ -3,7 +3,6 @@ import '../App.css';
 import Home from './Home';
 //import '../components/Authentication/Authentication.css';
 import { useNavigate } from 'react-router-dom';
-import LogIn from './LogIn';
 
 const SignUp = ({ handleSignUpSuccess }) => {
   const [newEmail, setNewEmail] = useState('');
