@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const { serialize } = require('cookie');
 const multer = require('multer');
 const fs = require('fs');
+const crypto = require('crypto');
 //const schemas = require('../models/schemas'); //UNCOMMENT THIS LINE WHEN USING THE SCHEMAS FILE
 
 // Middleware to parse JSON in the request body
@@ -32,9 +33,9 @@ async function createSession(userID, token) {
     // Bind parameters for the query
     const bindParams = {
       userID,
-      token,
+      token: hashedToken,
     };
-    console.log('userID: ', userID, ' & token: ', token);
+    console.log('userID: ', userID, ' & token: ', hashedToken);
 
     // Execute the query
     const result = await connection.execute(query, bindParams);
@@ -73,9 +74,9 @@ async function getUserID(email) {
     // Execute the query
     const result = await connection.execute(query, bindParams);
     // Check if the query returned any rows
-    console.log("result.rows:", result.rows, " or result: ", result.ID);
+    console.log("result.rows[0][0]:", result.rows[0][0], " or result: ", result.ID);
     if (result.rows.length > 0) {
-      return result.rows[0];
+      return result.rows[0][0];
     } else {
       return -1;
     }
@@ -93,31 +94,34 @@ async function getUserID(email) {
   }
 };
 
+async function generateRandomToken(length) {
+  return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
+}
+
 async function setCookie(email) {
   try {
     // Generate a random session token
     const userID = await getUserID(email);
-    console.log("userID in SETCOOKIE:", userID);
-    // Set the session token in the database
-    // (Replace 'setSessionTokenInDatabase' with your actual function)
-    //await setSessionTokenInDatabase(email, sessionToken);
-    // Set the session token in a cookie
+    // Create a new session in the database and get the session ID
+    const token = await generateRandomToken(16); // Generate a random token of length 16
+    const sessionID = await createSession(userID, 'some_random_token'); // Replace 'some_random_token' with an actual token if needed
+
+    // Set the session ID in a cookie
     const cookieOptions = {
       maxAge: 3600, // 1 hour in seconds
       expires: new Date(Date.now() + 3600000), // 1 hour from now
-      domain: 'localhost:3000',
+      domain: 'localhost',
       path: '/',
       secure: true,
       httpOnly: true,
-      sameSite: 'strict'
+      sameSite: 'lax'
     };
-    const cookieString = serialize('geowhisker', cookieOptions);
-    const session = await createSession(userID, serialize('geowhisker', cookieOptions));
-    console.log("session:", session);
+    const cookieString = serialize('geowhisker', sessionID, cookieOptions); // Set the session ID in the cookie
+
     return cookieString;
   } catch (error) {
     console.error('Error setting session token:', error.message);
-    throw error; // You might want to handle the error differently based on your application logic
+    throw error;
   }
 };
 
@@ -157,9 +161,11 @@ router.post('/login', async (req, res) => {
       console.log("email:", email);
   
       // Authenticate the user
-      await authenticateUser(email, pw);
-      res.setHeader('Set-Cookie', await setCookie(email));
+      isUserValid = await authorizeUser(email, pw);
+      cookie = await setCookie(email);
 
+      res.setHeader('Set-Cookie', cookie);
+      console.log("C00O0o0o0o0o0o0o0OKIE:", cookie);
       // Send a success response
       res.status(200).json({ message: 'User logged in successfully!' });
     } catch (error) {
@@ -630,7 +636,7 @@ async function saveUserToDatabase(email, pw) {
     }
   }
 
-async function authenticateUser(email, pw) {
+async function authorizeUser(email, pw) {
   let connection;
   console.log("password:", pw);
   try {
@@ -683,6 +689,39 @@ async function authenticateUser(email, pw) {
     }
   }
 }
+
+// Authentication middleware
+const authenticateUser = async (req, res, next) => {
+  const sessionToken = req.cookies.geowhisker; // Assuming the cookie name is 'geowhisker'
+  
+  if (!sessionToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // Verify session token against database
+    const user = await verifySession(sessionToken); // Implement this function to verify the session token
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Attach the user object to the request for further processing if needed
+    req.user = user;
+
+    next(); // Continue to the next middleware
+  } catch (error) {
+    console.error('Error authenticating user:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Example of a gated endpoint
+router.get('/session', authenticateUser, (req, res) => {
+  // If the execution reaches here, it means the user is authenticated
+  res.json({ message: 'Welcome to the gated page!' });
+});
+
 
 async function hashPassword(plainPassword) {
   try {
