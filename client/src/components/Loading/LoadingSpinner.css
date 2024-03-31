@@ -7,7 +7,7 @@
   }
   
   .spinner {
-    animation: rotate 2s linear infinite;
+    animation: rotate 1s linear infinite;
     stroke: #1e8c94;
     stroke-dasharray: 150;
     stroke-dashoffset: 75;
