@@ -80,7 +80,7 @@ const User = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`/users`, {
+            const response = await fetch(`/users/${user[0]}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

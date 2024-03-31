@@ -724,6 +724,32 @@ router.get('/user', async (req, res) => {
   }
 });
 
+router.put('/users/:userID', async (req, res) => {
+  const userID = req.params.userID;
+  const updatedUserData = req.body;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    const binds = { id: userID, uname: this.name,  };
+    const sql = 
+    `
+    UPDATE users
+    SET
+        uname = :uname,
+        email = :email,
+        feeder = :feeder,
+        trapper = :trapper,
+        catadmin = :catadmin
+    WHERE
+        id = userID`;
+  
+    const result = await connection.execute(sql, binds, { autoCommit: true });
+    res.status(200).json({ message: 'User data updated successfully' });
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    res.status(500).json({ error: 'Failed to update user data' });
+  }
+});
+
 async function userExists(email) {
   let connection;
 
