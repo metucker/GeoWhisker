@@ -161,7 +161,46 @@ async function getUserID(email) {
     const result = await connection.execute(query, bindParams);
     // Check if the query returned any rows
     if (result.rows.length > 0) {
-      console.log("User ID retrieved successfully!");
+      console.log("User ID retrieved successfully via Email!");
+      return result.rows[0][0];
+    } else {
+      return -1;
+    }
+  } catch (error) {
+    console.error('Error retrieving userID:', error);
+    throw error; // You might want to handle the error differently based on your application logic
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+  }
+};
+
+async function getSessionUserID(token) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    // Prepare the SQL query
+    const query = `
+    SELECT userID FROM SESSIONS WHERE token = :token
+    `;
+
+    // Bind parameters for the query
+    const bindParams = {
+      token: token,
+    };
+
+    // Execute the query
+    const result = await connection.execute(query, bindParams);
+    // Check if the query returned any rows
+    if (result.rows.length > 0) {
+      console.log("User ID retrieved successfully via Session!");
       return result.rows[0][0];
     } else {
       return -1;
@@ -639,6 +678,40 @@ router.get('/users', async (req, res) => {
     res.json({ caretakers });
   } catch (error) {
     console.error('Error retrieving caretakers:', error);
+    res.status(500).send('Internal Server Error');
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error);
+      }
+    }
+  }
+});
+
+router.get('/user', async (req, res) => {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    const userID = await getSessionUserID(req.cookies.geowhisker);
+
+    const binds = { userID };
+    const sql = 'SELECT * FROM Users WHERE ID = :userID';
+
+    const result = await connection.execute(sql, binds, { autoCommit: true });
+
+    if (result.rows.length > 0) {
+      console.log('\nUser retrieved successfully:', result.rows[0]);
+      //res.json({ result });
+      res.json(result.rows[0]);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving user:', error);
     res.status(500).send('Internal Server Error');
   } finally {
     if (connection) {

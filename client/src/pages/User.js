@@ -2,33 +2,72 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../App.css';
 import '../components/Authentication/Authentication.css';
+import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
+import { useNavigate } from 'react-router-dom';
+
 
 const User = () => {
     const [user, setUser] = useState(null);
     const [formData, setFormData] = useState({
-        name: '',
-        email: ''
+        name: user ? user[4] : '',
+        email: user ? user[3] : ''
     });
-    const { userID } = useParams();
+    const [isLoading, setIsLoading] = useState(true); // State to track loading status
+    const navigate = useNavigate();
+
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch(`/api/users/${userID}`);
+            const response = await fetch('http://localhost:4000/user', {
+                method: 'GET',
+                credentials: 'include', // Include cookies in the request
+            });
             if (response.ok) {
                 const userData = await response.json();
+                console.log('User data id:', userData)
                 setUser(userData);
                 setFormData(userData); // Set form data to user data
+                console.log('User data:', userData, "and user: ", user );
             } else {
                 throw new Error('Failed to fetch user data');
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
+        } finally {
+            setIsLoading(false); // Mark data fetching as complete
         }
     };
 
     useEffect(() => {
-        fetchUserData();
-    }, [userID]);
+        const checkSessionValidity = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/session', {
+                    method: 'GET',
+                    credentials: 'include', // Include cookies in the request
+                });
+
+                if (response.ok) {
+                    fetchUserData(); // Fetch user data if session is valid
+                } else {
+                    console.log('User not authenticated');
+                    setIsLoading(false); // Mark loading as complete even if user is not authenticated
+                }
+            } catch (error) {
+                console.error('Error checking session validity:', error);
+                setIsLoading(false); // Mark loading as complete in case of error
+            }
+        };
+
+        checkSessionValidity();
+
+        if (user) {
+            setFormData({
+                name: user[4],
+                email: user[3]
+            });
+        }
+
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -41,7 +80,7 @@ const User = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`/api/users/${userID}`, {
+            const response = await fetch(`/users`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,8 +98,14 @@ const User = () => {
         }
     };
 
+    if (isLoading) {
+        return <LoadingSpinner />; // Show loading spinner while checking session validity and fetching user data
+    }
+
+
     if (!user) {
-        return <p>Loading...</p>;
+        //navigate('/home');
+        return <alert>User not found.</alert>; // Handle case where user data is not available
     }
 
     return (
@@ -68,7 +113,7 @@ const User = () => {
             <h1>User Profile</h1>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Name:
+                    Display Name:
                     <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
                 <label>
