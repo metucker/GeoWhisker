@@ -10,7 +10,8 @@ const AddCat = () => {
   const [cname, setCname] = useState('');
   const [age, setAge] = useState('');
   const [cat_aliases, setCatAliases] = useState('');
-  const [geographical_area, setGeographicalArea] = useState('');
+  const [geographical_area, setPolygonCoordinates] = useState([]);
+  // const [polygonCoordinates, setPolygonCoordinates] = useState([]);
   const [microchipped, setMicrochipped] = useState('Unsure');
   const [chipID, setChipID] = useState('');
   const [hlength, setHairLength] = useState('');
@@ -32,9 +33,9 @@ const AddCat = () => {
     setCatAliases(e.target.value);
   };
 
-  const handleGeoChange = (e) => {
-    setGeographicalArea(e.target.value);
-  };
+  const handleGeoChange = (coordinates) => {
+    setPolygonCoordinates(coordinates);
+};
 
   const handleMicrochippedChange = (e) => {
     setMicrochipped(e.target.value);
@@ -71,7 +72,8 @@ const AddCat = () => {
     formData.append('cname', cname);
     formData.append('age', age);
     formData.append('cat_aliases', cat_aliases);
-    formData.append('geographical_area', geographical_area);
+    formData.append('geographical_area', JSON.stringify(geographical_area));
+    // formData.append('geographical_area', geographical_area);
     formData.append('microchipped', microchipped);
     formData.append('chipID', chipID);
     formData.append('hlength', hlength);
@@ -155,8 +157,8 @@ const AddCat = () => {
         <br />
         <label>
           Geographical Area: 
-          <input type="text" value={geographical_area} onChange={handleGeoChange} />
-          <AddCatMap />
+          {/* <input type="text" value={geographical_area} onChange={handleGeoChange} /> */}
+          <AddCatMap setPolygonCoordinates={handleGeoChange} />
         </label>
         <br />
         <label>
