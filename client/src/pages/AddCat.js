@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import './AddCat.css';
 import AddCatMap from '../components/AddCatMap';
-
+import TestMap from '../components/TestMap';
+import {setPolygonCoordinates} from '../components/TestMap';
 
 const AddCat = () => {
   // State variables for form fields
@@ -34,6 +35,8 @@ const AddCat = () => {
   };
 
   const handleGeoChange = (coordinates) => {
+    console.log("Geographical Area Coordinates:", coordinates);
+    // setPolygonCoordinates(coordinates);
     setPolygonCoordinates(coordinates);
 };
 
@@ -105,7 +108,7 @@ const AddCat = () => {
           const responseData = await response.json(); // Parse response body
           const catID = responseData.catID; // Extract catID from response
           console.log('Response Data:', responseData);
-          console.log('Cat ID:', catID);
+          console.log('Cat ID:', catID, "Poly:", geographical_area);
           //Photos associated with new cat
 
           const photoData = new FormData();
@@ -157,9 +160,12 @@ const AddCat = () => {
         <br />
         <label>
           Geographical Area: 
-          {/* <input type="text" value={geographical_area} onChange={handleGeoChange} /> */}
-          <AddCatMap setPolygonCoordinates={handleGeoChange} />
+          {/* <input type="text" value={handleGeoChange} onChange={handleGeoChange} /> */}
+          {/* <AddCatMap setPolygonCoordinates={handleGeoChange} /> */}
+          <TestMap setPolygonCoordinates={handleGeoChange} />
+
         </label>
+        {/* <TestMap setPolygonCoordinates={handleGeoChange} /> */}
         <br />
         <label>
           Microchipped: <br/>
