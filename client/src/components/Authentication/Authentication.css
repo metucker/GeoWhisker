@@ -53,4 +53,11 @@
     text-decoration: none;
     color: #6576d6;
   }
+
+  .returnToHome {
+    margin: 20px 0 40px 0;
+    font-size: 18px;
+    text-align: center;
+    align-content: center;
+  }
   
