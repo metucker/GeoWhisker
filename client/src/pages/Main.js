@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCat, faUser, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
-
+import CatMap from '../components/CatMap';
 
 
 const Main = () => {
@@ -33,7 +33,7 @@ const Main = () => {
                 {/* Right column - Your Cat Map */}
             <div className='catMap'>
                 <h2>Your Cat Map</h2>
-                {/* Add content for Your Cat Map */}
+                <CatMap catCoordinates={[{ lat: 29.6516, lng: -82.3248 }]}/>
             </div>
         </div>
     </div>
