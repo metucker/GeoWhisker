@@ -5,6 +5,8 @@ import './AddCat.css';
 import AddCatMap from '../components/AddCatMap';
 import TestMap from '../components/TestMap';
 import {setPolygonCoordinates} from '../components/TestMap';
+import withAuthentication from '../components/Authentication/withAuthentication';
+
 
 const AddCat = () => {
   // State variables for form fields
@@ -135,12 +137,12 @@ const AddCat = () => {
 
   return (
     <>
-    <div class="addCat">
+    <div className="addCat">
       <h1>Add a Cat</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Cat Name: 
-          <input type="text" value={cname} required="true" onChange={handleCnameChange} />
+          <input type="text" value={cname} required={true} onChange={handleCnameChange} />
         </label>
         <br />
         <label>
@@ -224,4 +226,4 @@ const AddCat = () => {
   );
 };
 
-export default AddCat;
+export default withAuthentication(AddCat);
