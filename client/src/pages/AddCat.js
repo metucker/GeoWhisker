@@ -162,9 +162,10 @@ const AddCat = () => {
           Geographical Area: 
           {/* <input type="text" value={handleGeoChange} onChange={handleGeoChange} /> */}
           {/* <AddCatMap setPolygonCoordinates={handleGeoChange} /> */}
-          <TestMap setPolygonCoordinates={handleGeoChange} />
 
         </label>
+        <TestMap setPolygonCoordinates={handleGeoChange} />
+
         {/* <TestMap setPolygonCoordinates={handleGeoChange} /> */}
         <br />
         <label>
