@@ -1,5 +1,5 @@
 import {React, useState} from 'react';
-import { GoogleMap, useLoadScript, Marker, DrawingManager } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, DrawingManager } from '@react-google-maps/api';
 
 const libraries = ['places', 'drawing'];
 const mapContainerStyle = {
@@ -14,7 +14,7 @@ const center = {
 };
 
 const TestMap = ({setPolygonCoordinates}) => {
-  const { isLoaded, loadError } = useLoadScript({
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
   });
@@ -49,7 +49,7 @@ const TestMap = ({setPolygonCoordinates}) => {
   }
 
   const onLoad = (map) => {
-    setMap(map);
+    //setMap(map);
     const drawingManager = new window.google.maps.drawing.DrawingManager(dmOptions);
     drawingManager.setMap(map);
   };
@@ -66,18 +66,23 @@ const TestMap = ({setPolygonCoordinates}) => {
   
 
   return (
+    <>
     <GoogleMap
       mapContainerStyle={mapContainerStyle}
       zoom={15}
       center={center}
       onLoad={onLoad}
       keyboardShortcuts={false}
-    >
+      drawingManager={{dmOptions}}
+      onPolygonComplete={onPolygonComplete}>
+    {/* {polygonComplete && map && <Polygon path={polygonCoordinates} map={map} />} */}
       <Marker position={center} />
-      <DrawingManager 
+      {/* <DrawingManager 
         options={dmOptions} 
-        onPolygonComplete={onPolygonComplete}/>
+        // onLoad={onLoad}
+        onPolygonComplete={onPolygonComplete}/> */}
     </GoogleMap>
+    </>
   );
 };
 
