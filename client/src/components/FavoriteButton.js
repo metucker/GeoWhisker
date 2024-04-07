@@ -12,7 +12,7 @@ const FavoriteButton = ({ catID }) => {
     try {
       // Fetch the favorited status from the server
       const response = await fetch(`http://localhost:4000/favorites/${catID}`, {
-        withCredentials: true, // Include cookies in the request
+        credentials: 'include', // Include cookies in the request
       });
 
       // Check if the cat is favorited by the current user
@@ -34,7 +34,7 @@ const FavoriteButton = ({ catID }) => {
       // Toggle the favorite status by sending a request to the server
       const response = await fetch(`http://localhost:4000/addfavorites/${catID}`, {
         method: 'POST',
-        withCredentials: true, // Include cookies in the request
+        credentials: 'include', // Include cookies in the request
       });
 
       if (response.ok) {

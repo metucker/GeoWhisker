@@ -48,7 +48,9 @@ const authenticateUser = async (req, res, next) => {
 
 router.post('/addfavorites/:catID', async (req, res) => { 
   const { catID } = req.params;
-  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+  const userID = await getSessionUserID(req.cookies.geowhisker);
+
+  console.log('Favorite about to be added!!! catID:', catID, ' & userID:', userID);
 
   try {
     // Get a connection from the pool
@@ -59,7 +61,7 @@ router.post('/addfavorites/:catID', async (req, res) => {
       `INSERT INTO Favorites (catID, userID) VALUES (:catID, :userID)`,
       {
         catID,
-        userID 
+        userID: userID 
       }, { autoCommit: true }
     );
 
@@ -80,8 +82,10 @@ router.post('/addfavorites/:catID', async (req, res) => {
 });
 
 router.get('/favorites/:catID', async (req, res) => {
-  const { catID } = req.params;
-  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+  const  { catID } = req.params;
+  const  userID = await getSessionUserID(req.cookies.geowhisker);
+
+  console.log("User ID of list of favorite cats! ", userID, "and " ,catID);
 
   try {
     // Get a connection from the pool
@@ -92,12 +96,15 @@ router.get('/favorites/:catID', async (req, res) => {
       `SELECT COUNT(*) AS count FROM Favorites WHERE catID = :catID AND userID = :userID`,
       {
         catID,
-        userID 
+        userID: userID 
       }
     );
 
-    // Check if the cat is favorited by the user
-    const isFavorited = result.rows[0].count > 0;
+    const count = result.rows[0][0];
+
+    console.log("RESULT COUNT:", count);
+
+    const isFavorited = count > 0;
 
     if (isFavorited) {
       console.log('Cat is favorited by the user');
@@ -117,7 +124,7 @@ router.get('/favorites/:catID', async (req, res) => {
 });
 
 router.get('/userfavorites', async (req, res) => {
-  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+  const  userID = await getSessionUserID(req.cookies.geowhisker);
 
   try {
     // Get a connection from the pool
@@ -125,18 +132,18 @@ router.get('/userfavorites', async (req, res) => {
 
     // Execute the query to check if the cat is favorited
     const result = await connection.execute(
-      `SELECT COUNT(*) AS count FROM Favorites WHERE userID = :userID`,
+      `SELECT catID FROM Favorites WHERE userID = :userID`,
       {
-        catID,
-        userID 
+        userID: userID
       }
     );
 
-    // Check if the cat is favorited by the user
+    // Check for result
     const favoriteCats = result.rows;
 
     if (favoriteCats) {
-      console.log('Cats found');
+      console.log('Cats found', favoriteCats);
+    
     } else {
       console.log('User is not currently following any cats');
     }
@@ -307,7 +314,7 @@ async function getSessionUserID(token) {
     const result = await connection.execute(query, bindParams);
     // Check if the query returned any rows
     if (result.rows.length > 0) {
-      console.log("User ID retrieved successfully via Session!");
+      console.log("User ID retrieved successfully via Session!", result.rows[0][0]);
       return result.rows[0][0];
     } else {
       return -1;
