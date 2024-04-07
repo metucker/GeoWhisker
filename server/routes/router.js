@@ -159,6 +159,123 @@ router.get('/userfavorites', async (req, res) => {
   }
 });
 
+// router.get('/favoritelist', async (req, res) => {
+//   const userID = await getSessionUserID(req.cookies.geowhisker);
+
+//   try {
+//     const connection = await oracledb.getConnection(dbConfig);
+
+//     const result = await connection.execute(
+//       `SELECT catID FROM Favorites WHERE userID = :userID`,
+//       {
+//         userID: userID
+//       }
+//     );
+
+//     if (result.rows.length > 0) {
+//       const catIDs = result.rows.map(row => row[0]);
+//       console.log('Favorites exist:', catIDs);
+
+//       const cats = [];
+
+//       // Fetch details of each cat asynchronously
+//       await Promise.all(catIDs.map(async catID => {
+//         const catResult = await connection.execute(
+//           `SELECT Cats.catID, Cats.cname, Cats.age, Cats.aliases, Cats.geographical_area, Cats.microchipped, Cats.chipID, Cats.hlength, Cats.gender, Cats.feral, p.photo FROM Cats 
+//           INNER JOIN ProfilePhotos pp ON Cats.catID = pp.catID
+//           INNER JOIN CatPhotos p ON pp.photoID = p.photoID
+//           WHERE Cats.catID = :catID`, { catID }
+//         );
+
+        
+        
+
+//         if (catResult.rows.length > 0) {
+//           // let cats = [];
+
+//           // cats = await Promise.all(catResult.rows.map(async row => {
+//           //   const photoBuffer = await row[10].getData();
+//           //   const base64String = photoBuffer.toString('base64');
+          
+//           //   return {
+//           //     catID: row[0],
+//           //     cname: row[1],
+//           //     age: row[2],
+//           //     aliases: row[3],
+//           //     geographical_area: row[4],
+//           //     microchipped: row[5],
+//           //     chipID: row[6],
+//           //     hlength: row[7],
+//           //     gender: row[8],
+//           //     feral: row[9],
+//           //     photo: base64String
+//           //   };
+//           // }));
+
+
+//           res.status(200).json(catResult );
+//           //const cat = catResult.rows[0]; // Assuming only one row is expected
+          
+//           // cats.push(cats); // Collect cat details
+//         } else {
+//           console.log('No favorite cats found for ID:', catID);
+//         }
+//       }));
+//       // Send the response after all cats have been collected
+//     } else {
+//       console.log('No favorite cats found');
+//       res.json({ cats: [] }); // Send an empty array if no cats found
+//     }
+
+//   } catch (error) {
+//     console.error('Error retrieving favorites:', error);
+//     res.status(500).json({ error: 'An internal server error occurred' });
+//   }
+// });
+
+router.get('/favoritelist', async (req, res) => {
+  const userID = await getSessionUserID(req.cookies.geowhisker);
+
+  try {
+    const connection = await oracledb.getConnection(dbConfig);
+
+    const result = await connection.execute(
+      `SELECT catID FROM Favorites WHERE userID = :userID`,
+      {
+        userID: userID
+      }
+    );
+
+    if (result.rows.length > 0) {
+      const catIDs = result.rows.map(row => row[0]);
+      console.log('Favorites exist:', catIDs);
+
+      const cats = [];
+
+      // Fetch details of each cat asynchronously
+      await Promise.all(catIDs.map(async catID => {
+        const catResult = await connection.execute(
+          `SELECT * FROM Cats WHERE catID = :catID`, { catID }
+        );
+
+        if (catResult.rows.length > 0) {
+          const catDetails = catResult.rows[0];
+          cats.push(catDetails);
+        } else {
+          console.log('No favorite cats found for ID:', catID);
+        }
+      }));
+
+      res.status(200).json(cats);
+    } else {
+      console.log('No favorite cats found');
+      res.json({ cats: [] }); // Send an empty array if no cats found
+    }
+  } catch (error) {
+    console.error('Error retrieving favorites:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
 
 // Example of a gated endpoint
 router.get('/session', authenticateUser, (req, res) => {

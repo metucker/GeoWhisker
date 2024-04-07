@@ -14,6 +14,7 @@ const CatList = () => {
       if (response.ok) {
         const data = await response.json();
         setCats(data);
+        console.log("CATS", cats);
       } else {
         console.error('Failed to fetch cats');
       }
