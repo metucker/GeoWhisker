@@ -96,10 +96,12 @@ const AddCat = () => {
     try {
       const response = await fetch('http://localhost:4000/addcat', {
         method: 'POST',
+        credentials: 'include', 
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(jsonFormData),
+        
       });
     console.log("Form Data: ", jsonFormData);
 
@@ -107,12 +109,14 @@ const AddCat = () => {
     
         if (response.ok) {
           console.log('Cat added successfully');
+          //get catID
           const responseData = await response.json(); // Parse response body
           const catID = responseData.catID; // Extract catID from response
           console.log('Response Data:', responseData);
           console.log('Cat ID:', catID, "Poly:", geographical_area);
           //Photos associated with new cat
 
+          //set cat profile photo
           const photoData = new FormData();
           photoData.append('catID', catID);
           photoData.append('photo', photo);
@@ -121,8 +125,16 @@ const AddCat = () => {
             body: photoData,
           });
           console.log("Photo Data: ", photoData);
+
+          //set cat's creator
+          const response3 = await fetch(`http://localhost:4000/addfavorites/${catID}`, {
+            method: 'POST',
+            withCredentials: true, // Include cookies in the request
+          });
+
+
         } else {
-          console.error('Failed to add cat');
+          console.error('Failed to add cat:', response.status);
         //   // Handle error cases
 
         }

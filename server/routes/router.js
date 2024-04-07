@@ -60,9 +60,9 @@ router.post('/addfavorites/:catID', async (req, res) => {
       {
         catID,
         userID 
-      }
+      }, { autoCommit: true }
     );
-    
+
     const isFavorited = result.rowsAffected > 0;
 
     console.log(isFavorited ? 'Cat added to favorites' : 'Cat not added to favorites');
@@ -107,6 +107,42 @@ router.get('/favorites/:catID', async (req, res) => {
 
     // Send the response
     res.json({ isFavorited });
+
+    // Release the connection
+    await connection.close();
+  } catch (error) {
+    console.error('Error retrieving favorites:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
+
+router.get('/userfavorites', async (req, res) => {
+  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+
+  try {
+    // Get a connection from the pool
+    const connection = await oracledb.getConnection(dbConfig);
+
+    // Execute the query to check if the cat is favorited
+    const result = await connection.execute(
+      `SELECT COUNT(*) AS count FROM Favorites WHERE userID = :userID`,
+      {
+        catID,
+        userID 
+      }
+    );
+
+    // Check if the cat is favorited by the user
+    const favoriteCats = result.rows;
+
+    if (favoriteCats) {
+      console.log('Cats found');
+    } else {
+      console.log('User is not currently following any cats');
+    }
+
+    // Send the response
+    res.json({ favoriteCats });
 
     // Release the connection
     await connection.close();
@@ -375,6 +411,9 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/addcat', async (req, res) => {
+  console.log('USER ID RECEIVED from AddCat.js: ', await getSessionUserID(req.cookies.geowhisker));
+
+
   try {
      
     const { cname,
@@ -388,9 +427,10 @@ router.post('/addcat', async (req, res) => {
       gender,
       feral
     }  = req.body;
-    console.log(req.body);
+    console.log(req.body, 'USER ID: ', await getSessionUserID(req.cookies.geowhisker));
 
-    const catID = await createCat(req.body);
+
+    const catID = await createCat(req);
     // Save the user data to the database with schemas
     // const newData = {email: email, pw: await hashPassword(pw)};
     // const newUser = new schemas.Users(newData);
@@ -407,9 +447,9 @@ router.post('/addcat', async (req, res) => {
     }
 });
 
-async function createCat(reqBody) {
+async function createCat(req) {
   let connection;
-  console.log("reqBody:", reqBody.photo);
+  console.log("reqBody:", req.body.photo);
   try {
     connection = await oracledb.getConnection(dbConfig);
     const { cname,
@@ -422,9 +462,9 @@ async function createCat(reqBody) {
       photo,
       gender,
       feral
-    }  = reqBody;
+    }  = req.body;
     console.log("Correct data:", cname, age, cat_aliases, geographical_area, microchipped);
-    
+    console.log("ID of user creating this kitty cat: ", await getSessionUserID(req.cookies.geowhisker))
     let catID;
     const sql = `
     
@@ -437,7 +477,8 @@ async function createCat(reqBody) {
       chipID, 
       hlength,
       gender, 
-      feral) 
+      feral,
+      userID) 
       VALUES (
         :cname, 
         :age, 
@@ -447,7 +488,8 @@ async function createCat(reqBody) {
         :chipID, 
         :hlength, 
         :gender, 
-        :feral) 
+        :feral,
+        :userID) 
         RETURN catID INTO :catID
       `
     
@@ -461,6 +503,7 @@ async function createCat(reqBody) {
       hlength, 
       gender, 
       feral,
+      userID: await getSessionUserID(req.cookies.geowhisker),
       catID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
     }; 
     const result = await connection.execute(sql, binds, { autoCommit: true });
