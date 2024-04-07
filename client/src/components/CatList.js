@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import CatTile from './CatTile';
-import { Link } from 'react-router-dom';
 
 const CatList = () => {
   const [cats, setCats] = useState([]);
@@ -26,9 +25,12 @@ const CatList = () => {
   return (
     <div className="cat-list">
       {cats.map(cat => (
-        <Link key={cat.catID} to={`/cats/${cat.catID}`}>
-        <CatTile key={cat.catID} cat={cat} />
-        </Link>
+        <>
+          {/* <Link key={cat.catID} to={`/cats/${cat.catID}`}> */}
+          <CatTile key={cat.catID} cat={cat} >
+          </CatTile>
+          {/* </Link> */}
+        </>
       ))}
     </div>
   );

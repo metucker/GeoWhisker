@@ -5,11 +5,43 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #000;
+    margin: 30px;
+    padding: 30px;
+    border: 3px solid #6da5a5  ;
+    border-radius: 5px;
+    background: #6da5a5;
+    max-width: fit-content;
+    position: relative;
+}
+
+.cat-tile {
+    border: 3px solid #054146;
     border-radius: 5px;
     fill: #1e8c94;
+    padding: 20px;
+    background: #054146;
+    text: #fff;
+    margin: 20px;
+    flex-direction: column; /* Stack cat-photo and cat-details vertically by default */
+    display: flex;
+
+}
+
+.cat-tile h2, .cat-tile p {
+    color: #fff;
+}
+
+.cat-photo img {
+    max-width: 200px; /* Ensure images don't exceed the container width */
+    max-height: 200px; /* Ensure images don't exceed the container height */
+    object-fit: cover; /* Scale the image while maintaining aspect ratio to cover the entire container */
+  }
+
+.cat-photo,
+.cat-details {
+  flex: 1; /* Each column takes up equal space */
+  max-width: 400px;
+  min-width: fit-content;
 }
 
 .addCat, .row1, .addCat h2 {
@@ -36,3 +68,15 @@
 #select {
     padding: 20px;
 }
+
+@media (min-width: 768px) {
+    .cat-tile {
+      flex-direction: row; /* Arrange cat-photo and cat-details side by side */
+      max-width: 120px;
+    }
+  
+    .cat-photo,
+    .cat-details {
+      max-width: 20%; /* Each column takes up half of the width */
+    }
+  }

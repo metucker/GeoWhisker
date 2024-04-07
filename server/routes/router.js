@@ -46,6 +46,77 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
+router.post('/addfavorites/:catID', async (req, res) => { 
+  const { catID } = req.params;
+  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+
+  try {
+    // Get a connection from the pool
+    const connection = await oracledb.getConnection(dbConfig);
+
+    // Execute the query to check if the cat is favorited
+    const result = await connection.execute(
+      `INSERT INTO Favorites (catID, userID) VALUES (:catID, :userID)`,
+      {
+        catID,
+        userID 
+      }
+    );
+    
+    const isFavorited = result.rowsAffected > 0;
+
+    console.log(isFavorited ? 'Cat added to favorites' : 'Cat not added to favorites');
+
+    // Send the response
+    res.json({ isFavorited });
+
+    // Release the connection
+    await connection.close();
+    } catch (error) {
+      console.error('Error added cat to favorites:', error);
+      res.status(500).json({ error: 'An internal server error occurred' });
+    }
+
+});
+
+router.get('/favorites/:catID', async (req, res) => {
+  const { catID } = req.params;
+  const { userID }= await getSessionUserID(req.cookies.geowhisker);
+
+  try {
+    // Get a connection from the pool
+    const connection = await oracledb.getConnection(dbConfig);
+
+    // Execute the query to check if the cat is favorited
+    const result = await connection.execute(
+      `SELECT COUNT(*) AS count FROM Favorites WHERE catID = :catID AND userID = :userID`,
+      {
+        catID,
+        userID 
+      }
+    );
+
+    // Check if the cat is favorited by the user
+    const isFavorited = result.rows[0].count > 0;
+
+    if (isFavorited) {
+      console.log('Cat is favorited by the user');
+    } else {
+      console.log('Cat is not favorited by the user');
+    }
+
+    // Send the response
+    res.json({ isFavorited });
+
+    // Release the connection
+    await connection.close();
+  } catch (error) {
+    console.error('Error retrieving favorites:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
+
+
 // Example of a gated endpoint
 router.get('/session', authenticateUser, (req, res) => {
   // If the execution reaches here, it means the user is authenticated
