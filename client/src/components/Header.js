@@ -21,6 +21,9 @@ export default function Header() {
           <li>
             <a href="/browse">Browse</a>
           </li>
+          <li>
+            <a href="/resources">Resources</a>
+          </li>
         </ul>
         </nav>
       </div>
