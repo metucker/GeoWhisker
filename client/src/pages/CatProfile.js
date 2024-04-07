@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import FavoriteButton from '../components/FavoriteButton';
 
 const CatProfile = () => {
   const { catID } = useParams();
@@ -39,6 +40,7 @@ const CatProfile = () => {
           <h2>{cat[0].cname}</h2>
           <p>Age: {cat[0].age}</p>
           {/* Display other cat details */}
+          <FavoriteButton catID={catID} />
         </div>
       ) : (
         <p>Loading...</p>

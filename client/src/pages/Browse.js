@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import withAuthentication from '../components/Authentication/withAuthentication';
 import CatList from '../components/CatList';
+import LoadingSpinner from '../components/Loading/LoadingSpinner';
 
 
 function Browse() {
@@ -16,10 +17,17 @@ function Browse() {
 
   return (
     <>
+    {cats ? (
+      <>
       <h1>Browse Cats Near You</h1>
       <div className="cat-page">
         <CatList cats={cats} />
       </div>
+      </>
+    ) : (
+      <LoadingSpinner/>
+    )}
+      
     </>
   );
 }
