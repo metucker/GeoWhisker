@@ -1129,5 +1129,77 @@ async function passwordsMatch(candidatePassword, hashedPassword) {
   }
 }
 
+router.post('/logout', (req, res) => {
+  // Clear session data or invalidate token
+  // For example, if using Express and express-session:
+  try {
+    // Extract user ID from the session cookie
+    const userID = getSessionUserID(req.cookies.geowhisker);
+
+    // Set the expiration time of the cookie to now
+    res.cookie('geowhisker', '', { expires: new Date() });
+
+    // Respond with a success message
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
+
+router.post('/cats/:catID/comments', async (req, res) => {
+
+  try {
+    const { catID } = req.params;
+    const { text } = req.body;
+    const userID = await getSessionUserID(req.cookies.geowhisker);
+
+    // Insert the new comment into the database
+    const connection = await oracledb.getConnection(dbConfig);
+    const result = await connection.execute(
+      `INSERT INTO comments (catID, userID, cbody) VALUES (:catID, :userID, :text)`,
+      [catID, userID, text],
+      { autoCommit: true } // Commit the transaction immediately
+    );
+
+    // Check if the comment was successfully added
+    if (result.rowsAffected !== 1) {
+      return res.status(500).json({ error: 'Failed to add comment' });
+    }
+
+    res.status(201).json({ message: 'Comment added successfully' });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
+
+router.get('/cats/:catID/comments', async (req, res) => {
+
+  try {
+    const { catID } = req.params;
+
+    // Fetch the comments for the given cat ID
+    const connection = await oracledb.getConnection(dbConfig);
+    const result = await connection.execute(
+      `SELECT c.cbody, u.email FROM Comments c
+      INNER JOIN Users u ON c.userID = u.id
+      WHERE c.catID = :catID`,
+      [catID]
+    );
+
+    // Send the comments in the response
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.json({ comments: [] });
+    }
+  }
+  catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
+
   
 module.exports = router;

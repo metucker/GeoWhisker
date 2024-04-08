@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
+import AddComment from '../components/Comments/AddComment';
 
 const CatProfile = () => {
   const { catID } = useParams();
@@ -32,6 +33,7 @@ const CatProfile = () => {
   }, [catID]);
 
   return (
+    <>
     <div>
       {cat ? (
         <div>
@@ -46,6 +48,11 @@ const CatProfile = () => {
         <p>Loading...</p>
       )}
     </div>
+    <div className='comment'>
+      <AddComment catID={catID} />
+    </div>
+    </>
+    
   );
 };
 
