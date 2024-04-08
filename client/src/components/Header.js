@@ -1,6 +1,7 @@
 import Logo from './Logo';
 import React from 'react';
 import './Header.css'; // Create a separate CSS file for styling
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   return (
@@ -24,8 +25,14 @@ export default function Header() {
           <li>
             <a href="/resources">Resources</a>
           </li>
+          <li>
+            <a href="/logout">Log Out</a>
+          </li>
         </ul>
         </nav>
+
+        
+
       </div>
     </>
   );
