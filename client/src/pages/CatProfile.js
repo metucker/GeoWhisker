@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
 import AddComment from '../components/Comments/AddComment';
+import Comments from '../components/Comments/Comments';
 
 const CatProfile = () => {
   const { catID } = useParams();
@@ -50,6 +51,7 @@ const CatProfile = () => {
     </div>
     <div className='comment'>
       <AddComment catID={catID} />
+      <Comments catID={catID} />
     </div>
     </>
     

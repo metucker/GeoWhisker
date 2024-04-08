@@ -142,7 +142,7 @@ router.get('/userfavorites', async (req, res) => {
     const favoriteCats = result.rows;
 
     if (favoriteCats) {
-      console.log('Cats found', favoriteCats);
+      //console.log('Cats found', favoriteCats);
     
     } else {
       console.log('User is not currently following any cats');
@@ -890,7 +890,7 @@ router.get('/cat/:catID', async (req, res) => {
       };
     }));
 
-    console.log("RETRIEVED PHOTOS:", cat[0].photo)
+    //console.log("RETRIEVED PHOTOS:", cat[0].photo)
 
     res.status(200).json(cat);
   } catch (error) {
@@ -1182,7 +1182,7 @@ router.get('/cats/:catID/comments', async (req, res) => {
     // Fetch the comments for the given cat ID
     const connection = await oracledb.getConnection(dbConfig);
     const result = await connection.execute(
-      `SELECT c.cbody, u.email FROM Comments c
+      `SELECT c.cbody, u.ID, u.uname FROM Comments c
       INNER JOIN Users u ON c.userID = u.id
       WHERE c.catID = :catID`,
       [catID]
@@ -1190,6 +1190,7 @@ router.get('/cats/:catID/comments', async (req, res) => {
 
     // Send the comments in the response
     if (result.rows.length > 0) {
+      console.log("COMMENTS: " , result.rows);
       res.json(result.rows);
     } else {
       res.json({ comments: [] });
