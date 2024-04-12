@@ -19,8 +19,8 @@ const MapComponent = ({setPolygonCoordinates}) => {
     const [polygons, setPolygons] = useState([]);
 
     const defaultCenter = {
-        lat: 28.626137,
-        lng: 79.821603,
+        lat: 29.6516, 
+        lng: -82.3248
     }
     const [center, setCenter] = useState(defaultCenter);
 
