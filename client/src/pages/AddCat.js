@@ -129,7 +129,7 @@ const AddCat = () => {
           //set cat's creator
           const response3 = await fetch(`http://localhost:4000/addfavorites/${catID}`, {
             method: 'POST',
-            withCredentials: true, // Include cookies in the request
+            credentials: 'include', // Include cookies in the request
           });
 
 
