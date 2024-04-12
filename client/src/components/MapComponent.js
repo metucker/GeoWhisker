@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Autocomplete, DrawingManager, GoogleMap, Polygon, useJsApiLoader } from '@react-google-maps/api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons'
 
 const libraries = ['places', 'drawing'];
 const MapComponent = ({setPolygonCoordinates}) => {
@@ -24,6 +26,40 @@ const MapComponent = ({setPolygonCoordinates}) => {
     }
     const [center, setCenter] = useState(defaultCenter);
 
+    useEffect(() => {
+    if (navigator.permissions) {
+        // Check for geolocation permission
+        navigator.permissions.query({name:'geolocation'})
+        .then(function(permissionStatus) {
+            if (permissionStatus.state === 'granted') {
+                // If granted, get the location
+                navigator.geolocation.getCurrentPosition((position) => {
+                    setCenter({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    });
+                });
+            } else if (permissionStatus.state === 'prompt') {
+                console.log('Permission to access location is being asked');
+            } else if (permissionStatus.state === 'denied') {
+                console.log('Permission to access location was denied');
+            }
+            // Listen for changes to the permission state
+            permissionStatus.onchange = function() {
+                console.log('Permission state has changed to ' + this.state);
+            };
+        });
+    } else {
+        // If permissions API not supported, fall back to getting location
+        navigator.geolocation.getCurrentPosition((position) => {
+            setCenter({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+            });
+        });
+    }
+}, []);
+
     const containerStyle = {
         width: '100%',
         height: '400px',
@@ -42,20 +78,21 @@ const MapComponent = ({setPolygonCoordinates}) => {
         textOverflow: 'ellipses',
         position: 'absolute',
         right: '8%',
-        top: '11px',
+        top: '2%px',
         marginLeft: '-120px',
     }
 
     const deleteIconStyle = {
         cursor: 'pointer',
-        height: '24px',
-        width: '24px',
+        height: '30px',
+        width: '30pxpx',
         marginTop: '5px', 
         backgroundColor: '#fff',
         position: 'absolute',
-        top: "2px",
-        left: "52%",
-        zIndex: 99999
+        top: "20%",
+        left: "5%",
+        zIndex: 99999,
+        padding: '6px',
     }
 
     const polygonOptions = {
@@ -71,7 +108,7 @@ const MapComponent = ({setPolygonCoordinates}) => {
         polygonOptions: polygonOptions,
         drawingControl: true,
         drawingControlOptions: {
-            position: window.google?.maps?.ControlPosition?.TOP_CENTER,
+            position: window.google?.maps?.ControlPosition?.BLOCK_START_INLINE_CENTER,
             drawingModes: [
                 window.google?.maps?.drawing?.OverlayType?.POLYGON
             ]
@@ -83,7 +120,7 @@ const MapComponent = ({setPolygonCoordinates}) => {
     }
 
     const onLoadPolygon = (polygon, index) => {
-        polygonRefs.current[index] = polygon;
+        //polygonRefs.current[index] = polygon;
     }
 
     const onClickPolygon = (index) => {
@@ -107,6 +144,8 @@ const MapComponent = ({setPolygonCoordinates}) => {
 
     const onLoadDrawingManager = drawingManager => {
         drawingManagerRef.current = drawingManager;
+        drawingManagerRef.current.setMap(null)
+
     }
 
     const onOverlayComplete = ($overlayEvent) => {
@@ -125,22 +164,25 @@ const MapComponent = ({setPolygonCoordinates}) => {
     }
 
     const onDeleteDrawing = () => {  
-        const filtered = polygons.filter((polygon, index) => index !== activePolygonIndex.current) 
-        setPolygons(filtered)
+        
+        setPolygons([]);
+        //drawingManagerRef.current.setMap(null)
+        //onLoadMap(mapRef.current);
+
     }
 
-    const onEditPolygon = (index) => {
-        const polygonRef = polygonRefs.current[index];
-        if (polygonRef) {
-            const coordinates = polygonRef.getPath()
-                .getArray()
-                .map(latLng => ({ lat: latLng.lat(), lng: latLng.lng() }));
+    // const onEditPolygon = (index) => {
+    //     const polygonRef = polygonRefs.current[index];
+    //     if (polygonRef) {
+    //         const coordinates = polygonRef.getPath()
+    //             .getArray()
+    //             .map(latLng => ({ lat: latLng.lat(), lng: latLng.lng() }));
 
-            const allPolygons = [...polygons];
-            allPolygons[index] = coordinates;
-            setPolygons(allPolygons)
-        }
-    }
+    //         const allPolygons = [...polygons];
+    //         allPolygons[index] = coordinates;
+    //         setPolygons(allPolygons)
+    //     }
+    // }
 
     const onPolygonComplete = (polygon) => {
         // Do something with the completed polygon, e.g., save its coordinates
@@ -165,7 +207,9 @@ const MapComponent = ({setPolygonCoordinates}) => {
                         onClick={onDeleteDrawing}
                         title='Delete shape'
                         style={deleteIconStyle}>
+                        <FontAwesomeIcon icon={faTrashCan} />
                     </div>
+                    
                 }
                 <GoogleMap
                     zoom={15}
@@ -186,8 +230,8 @@ const MapComponent = ({setPolygonCoordinates}) => {
                                 key={index}
                                 onLoad={(event) => onLoadPolygon(event, index)}
                                 onMouseDown={() => onClickPolygon(index)}
-                                onMouseUp={() => onEditPolygon(index)}
-                                onDragEnd={() => onEditPolygon(index)}
+                                // onMouseUp={() => onEditPolygon(index)}
+                                // onDragEnd={() => onEditPolygon(index)}
                                 options={polygonOptions}
                                 paths={iterator}
                                 draggable
