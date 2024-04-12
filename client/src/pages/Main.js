@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCat, faUser, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
 import CatMap from '../components/CatMap';
+import MapComponent from '../components/MapComponent';
 
 
 const Main = () => {
@@ -33,7 +34,8 @@ const Main = () => {
                 {/* Right column - Your Cat Map */}
             <div className='catMap'>
                 <h2>Your Cat Map</h2>
-                <CatMap catCoordinates={[{ lat: 29.6516, lng: -82.3248 }]}/>
+                {/* <CatMap catCoordinates={[{ lat: 29.6516, lng: -82.3248 }]}/> */}
+                <MapComponent />
             </div>
         </div>
     </div>

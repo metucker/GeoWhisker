@@ -4,7 +4,7 @@ import '../App.css';
 import './AddCat.css';
 import AddCatMap from '../components/AddCatMap';
 import TestMap from '../components/TestMap';
-import {setPolygonCoordinates} from '../components/TestMap';
+import MapComponent, {setPolygonCoordinates} from '../components/MapComponent';
 import withAuthentication from '../components/Authentication/withAuthentication';
 
 
@@ -175,10 +175,13 @@ const AddCat = () => {
         <label>
           Geographical Area: 
           {/* <input type="text" value={handleGeoChange} onChange={handleGeoChange} /> */}
-          {/* <AddCatMap setPolygonCoordinates={handleGeoChange} /> */}
+           {/* <AddCatMap setPolygonCoordinates={handleGeoChange} />  */}
 
         </label>
-        <TestMap setPolygonCoordinates={handleGeoChange} />
+        <MapComponent setPolygonCoordinates={handleGeoChange} />
+        <input type="hidden" name="geographical_area" value={geographical_area} />
+
+        {/* <TestMap setPolygonCoordinates={handleGeoChange} /> */}
 
         {/* <TestMap setPolygonCoordinates={handleGeoChange} /> */}
         <br />
