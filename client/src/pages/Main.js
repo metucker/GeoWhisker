@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a l
 import CatMap from '../components/CatMap';
 import MapComponent from '../components/MapComponent';
 import MiniCatList from '../components/MiniCatList';
+import UserHome from '../components/UserHome';
 
 
 const Main = () => {
@@ -26,6 +27,7 @@ const Main = () => {
         </div>
 
         {/* Section for Your Cats and Your Cat Map */}
+        <UserHome />
         <div className='columns'>
             {/* Left column - Your Cats */}
             <div className='yourCats'>
@@ -39,6 +41,7 @@ const Main = () => {
                 <MapComponent />
             </div>
         </div>
+
     </div>
 </>
   );

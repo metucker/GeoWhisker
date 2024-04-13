@@ -18,18 +18,21 @@ const CatMap = ({ cats }) => {
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
         libraries    
     });
-
+    const [catsWithLocs, setCatsWithLocs] = useState([]);
     const [center, setCenter] = useState(null);
 
     useEffect(() => {
       if (cats) {
 
-        const cats = cats.filter((cat) => cat.geographical_data)
+        const catLocs = cats.filter((cat) => !!cat.geographical_area && cat.geographical_area !== '[]');
+        setCatsWithLocs(catLocs);
+        console.log("REDUCED LIST ",  cats);
         
         // Calculate the center of each cat's geographical area
-        const catCenters = cats.map((cat) => {
-          console.log("CAT: ", cat.geographical_data);
-          const coordinates = JSON.parse(cat.geographical_data);
+        const catCenters = catLocs.map((cat) => {
+          console.log("CAT: ", cat.geographical_area);
+          const coordinates = JSON.parse(cat.geographical_area);
+          console.log("COORDINATES: ", coordinates);
           const latSum = coordinates.reduce((sum, coord) => sum + coord.lat, 0);
           const lngSum = coordinates.reduce((sum, coord) => sum + coord.lng, 0);
           const latAvg = latSum / coordinates.length;
@@ -54,56 +57,64 @@ const CatMap = ({ cats }) => {
     const mapOptions = {
       disableDefaultUI: true,
     };
+
+    const [map, setMap] = useState(null);
+
+    const onMapLoad = map => {
+        setMap(map);
+    };
+
+    const calculateCenter = coordinates => {
+        const latSum = coordinates.reduce((sum, coord) => sum + coord.lat, 0);
+        const lngSum = coordinates.reduce((sum, coord) => sum + coord.lng, 0);
+        return { lat: latSum / coordinates.length, lng: lngSum / coordinates.length };
+    };
   
     return (
       isLoaded && (
         <div className="map-container">
           <GoogleMap
-            zoom={15}
+            zoom={12}
             center={center}
             options={mapOptions}
             mapContainerStyle={containerStyle}
           >
-            {cats.map((cat) => {
+            {catsWithLocs.map((cat) => {
               try {
-                if (!cat.geographical_data) {
-                  return null; // Skip cats without geographical data
+                if (!cat.geographical_area) {
+                    return null; // Skip cats without geographical data
                 }
-              } catch (error) {
+            } catch (error) {
                 console.error('Error parsing geographical data:', error);
-              }
-
-              const coordinates = JSON.parse(cat.geographical_data);
-              const catCenter = coordinates.reduce(
-                (sum, coord) => {
-                  return {
-                    lat: sum.lat + coord.lat,
-                    lng: sum.lng + coord.lng,
-                  };
-                },
-                { lat: 0, lng: 0 }
-              );
-              const latAvg = catCenter.lat / coordinates.length;
-              const lngAvg = catCenter.lng / coordinates.length;
-              const catURL = `/cats/${cat.catID}`;
-  
-              return (
+            }
+        
+            const coordinates = JSON.parse(cat.geographical_area);
+        
+            // Calculate the center of the cat's geographical area
+            const latAvg = coordinates.reduce((sum, coord) => sum + coord.lat, 0) / coordinates.length;
+            const lngAvg = coordinates.reduce((sum, coord) => sum + coord.lng, 0) / coordinates.length;
+            
+            const catURL = `/cats/${cat.catID}`;
+        
+            return (
                 <div key={cat.catID}>
-                  <a href={catURL}>
-                    <FontAwesomeIcon
-                      icon={faCat}
-                      style={{
-                        position: 'absolute',
-                        top: '-50%',
-                        left: '-50%',
-                        transform: 'translate(-50%, -50%)',
-                        color: 'blue',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  </a>
+                    <a href={catURL}>
+                        <FontAwesomeIcon
+                            icon={faCat}
+                            style={{
+                                position: 'relative',
+                                lat: `${latAvg}%`, // Use latAvg directly for the top position
+                                lng: `${lngAvg}%`, // Use lngAvg directly for the left position
+                                transform: 'translate(-50%, -50%)',
+                                color: '#1e8c94',
+                                border: "1px solid black",
+                                background: "white",
+                                cursor: 'pointer',
+                            }}
+                        />
+                    </a>
                 </div>
-              );
+            );
             })}
           </GoogleMap>
         </div>
