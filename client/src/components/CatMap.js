@@ -3,7 +3,7 @@ import { GoogleMap, useLoadScript, Marker, useJsApiLoader} from '@react-google-m
 import { AdvancedMarker} from "@vis.gl/react-google-maps";
 import { faCat } from '@fortawesome/free-solid-svg-icons'
 
-const libraries = ['marker', 'maps'];
+const libraries = ['marker', 'maps', 'drawing'];
 const mapContainerStyle = {
   width: '100%',
   height: '400px',
