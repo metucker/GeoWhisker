@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Autocomplete, DrawingManager, GoogleMap, Polygon, useJsApiLoader} from '@react-google-maps/api';
+import { Autocomplete, DrawingManager, GoogleMap, Polygon, useJsApiLoader, OverlayView} from '@react-google-maps/api';
 import { AdvancedMarker} from "@vis.gl/react-google-maps";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCat } from '@fortawesome/free-solid-svg-icons'
@@ -46,6 +46,15 @@ const CatMap = ({ cats }) => {
         const latAvg = latSum / catCenters.length;
         const lngAvg = lngSum / catCenters.length;
         setCenter({ lat: latAvg, lng: lngAvg });
+
+        const latLngBounds = new window.google.maps.LatLngBounds();
+        catLocs.map((cat) => {
+          const coordinates = JSON.parse(cat.geographical_area);
+          coordinates.forEach((coord) => {
+            latLngBounds.extend(coord);
+          });
+        });
+        setCenter(latLngBounds.getCenter());
       }
     }, [cats]);
   
@@ -74,7 +83,7 @@ const CatMap = ({ cats }) => {
       isLoaded && (
         <div className="map-container">
           <GoogleMap
-            zoom={12}
+            zoom={9}
             center={center}
             options={mapOptions}
             mapContainerStyle={containerStyle}
@@ -95,23 +104,42 @@ const CatMap = ({ cats }) => {
             const lngAvg = coordinates.reduce((sum, coord) => sum + coord.lng, 0) / coordinates.length;
             
             const catURL = `/cats/${cat.catID}`;
+            console.log("COORDINATES ABOUT TO BE REDUCED FOR ICON: ", "lat: ", latAvg, "lng: " , lngAvg);
+
         
             return (
                 <div key={cat.catID}>
                     <a href={catURL}>
-                        <FontAwesomeIcon
+                        {/* <FontAwesomeIcon
                             icon={faCat}
                             style={{
-                                position: 'relative',
-                                lat: `${latAvg}%`, // Use latAvg directly for the top position
-                                lng: `${lngAvg}%`, // Use lngAvg directly for the left position
-                                transform: 'translate(-50%, -50%)',
+                                position: {lat: latAvg, lng: lngAvg},
+                                // lat: `${latAvg}%`, // Use latAvg directly for the top position
+                                // lng: `${lngAvg}%`, // Use lngAvg directly for the left position
+                                //transform: 'translate(-50%, -50%)',
                                 color: '#1e8c94',
                                 border: "1px solid black",
                                 background: "white",
                                 cursor: 'pointer',
                             }}
-                        />
+                        /> */}
+                         <OverlayView
+                    key={cat.catID}
+                    position={{ lat: latAvg, lng: lngAvg/* longitude of cat's center */ }}
+                    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                >
+                    <div
+                        style={{
+                            position: 'absolute',
+                            transform: 'translate(-50%, -50%)',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faCat} src={catURL} style={{ 
+                          color: '#1e8c94',fontSize: '48px',  onMouseOver: 'cursor: pointer',}}
+                           />
+                    </div>
+                </OverlayView>
                     </a>
                 </div>
             );
