@@ -20,9 +20,9 @@ function Browse() {
     {cats ? (
       <>
       <h1>Browse Cats Near You</h1>
-      <div className="cat-page">
+      {/* <div className="cat-list"> */}
         <CatList cats={cats} />
-      </div>
+      {/* </div> */}
       </>
     ) : (
       <LoadingSpinner/>

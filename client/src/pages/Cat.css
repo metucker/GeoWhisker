@@ -1,6 +1,6 @@
 /* AddCat.css */
 
-#form, .cat-page {
+#form, .cat-page, .cat-list {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -10,8 +10,10 @@
     border: 3px solid #6da5a5  ;
     border-radius: 5px;
     background: #6da5a5;
-    max-width: fit-content;
+    /* max-width: fit-content; */
+    max-width: 80vw;
     position: relative;
+    min-width: 70vw;
 }
 
 .cat-tile {
@@ -24,8 +26,9 @@
     margin: 20px;
     flex-direction: column; /* Stack cat-photo and cat-details vertically by default */
     display: flex;
-
+    min-width: 60vw;;
 }
+
 
 .cat-tile h2, .cat-tile p {
     color: #fff;
@@ -40,8 +43,10 @@
 .cat-photo,
 .cat-details {
   flex: 1; /* Each column takes up equal space */
-  max-width: 400px;
+  max-width: 30vw;
   min-width: fit-content;
+  padding: 20px;
+  vertical-align: middle;
 }
 
 .addCat, .row1, .addCat h2 {
