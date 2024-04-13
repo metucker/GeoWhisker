@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
-import './AddCat.css';
+import './Cat.css';
 import AddCatMap from '../components/AddCatMap';
 import TestMap from '../components/TestMap';
 import MapComponent, {setPolygonCoordinates} from '../components/MapComponent';
