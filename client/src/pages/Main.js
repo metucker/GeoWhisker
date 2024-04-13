@@ -7,6 +7,7 @@ import { faCat, faUser, faMagnifyingGlass } from '@fortawesome/free-solid-svg-ic
 import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
 import CatMap from '../components/CatMap';
 import MapComponent from '../components/MapComponent';
+import MiniCatList from '../components/MiniCatList';
 
 
 const Main = () => {
@@ -29,7 +30,7 @@ const Main = () => {
             {/* Left column - Your Cats */}
             <div className='yourCats'>
                 <h2>Your Cats</h2>
-                {/* Add content for Your Cats */}
+                <MiniCatList/>
             </div>
                 {/* Right column - Your Cat Map */}
             <div className='catMap'>
