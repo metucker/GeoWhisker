@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
 import FavoriteButton from './FavoriteButton';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCat } from '@fortawesome/free-solid-svg-icons';
 
 const CatTile = ({ cat }) => {
   // Convert the Blob object to a data URL
-  const photoUrl = `data:image/jpeg;base64,${cat.photo}`;
+
+  const photoUrl = cat.photo ? `data:image/jpeg;base64,${cat.photo}` : null;
   const catURL = `http://localhost:3000/cats/${cat.catID}`;
   // const photoUrl = URL.createObjectURL(new Blob([cat.photo], { type: 'image/jpeg' }));
 
@@ -13,7 +15,11 @@ const CatTile = ({ cat }) => {
     <div className="cat-tile">
       <div className="cat-photo">
         <Link key={cat.catID} to={`/cats/${cat.catID}`}>
-        <img src={photoUrl} alt={cat.cname} />
+        {photoUrl ? (
+            <img src={photoUrl} alt={cat.cname} />
+          ) : (
+            <FontAwesomeIcon icon={faCat} size="10x" color="white" />
+          )}
 
         </Link>
 
@@ -25,8 +31,8 @@ const CatTile = ({ cat }) => {
         </Link>
         <p>Age: {cat.age}</p>
         <p>Aliases: {cat.aliases}</p>
-        <p>Geographical Area: {cat.geographical_area}</p>
-        <p>Microchipped: {cat.microchipped}</p>
+        {/* <p>Geographical Area: {cat.geographical_area}</p>
+        <p>Microchipped: {cat.microchipped}</p> */}
         <FavoriteButton catID={cat.catID} />
 
       

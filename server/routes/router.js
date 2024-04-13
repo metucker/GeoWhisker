@@ -254,19 +254,89 @@ router.get('/favoritelist', async (req, res) => {
 
       // Fetch details of each cat asynchronously
       await Promise.all(catIDs.map(async catID => {
-        const catResult = await connection.execute(
-          `SELECT * FROM Cats WHERE catID = :catID`, { catID }
-        );
 
-        if (catResult.rows.length > 0) {
-          const catDetails = catResult.rows[0];
-          cats.push(catDetails);
-        } else {
-          console.log('No favorite cats found for ID:', catID);
-        }
+        
+          //const connection = await oracledb.getConnection(dbConfig);
+      
+          const sql = `
+            SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
+            FROM Cats c
+            LEFT JOIN ProfilePhotos pp ON c.catID = pp.catID
+            LEFT JOIN CatPhotos p ON pp.photoID = p.photoID
+            WHERE c.catID = :catID
+          `;
+      
+          const catResult = await connection.execute(sql, { catID: parseInt(catID) });
+      
+          if (catResult.rows.length > 0) {
+            const row = catResult.rows[0];
+            const photoBuffer = row[10] ? await row[10].getData() : null;
+            const base64String = photoBuffer ? photoBuffer.toString('base64') : null;
+  
+            const cat = {
+              catID: row[0],
+              cname: row[1],
+              age: row[2],
+              aliases: row[3],
+              geographical_area: row[4],
+              microchipped: row[5],
+              chipID: row[6],
+              hlength: row[7],
+              gender: row[8],
+              feral: row[9],
+              photo: base64String
+            };
+  
+            cats.push(cat);
+            console.log('Cat added to favorites:', cat.catID);
+          } else {
+            console.log('No favorite cats found for ID:', catID);
+          }
+          // const cat = await Promise.all(catResult.rows.map(async row => {
+          //   const photoBuffer = await row[10].getData();
+          //   const base64String = photoBuffer.toString('base64');
+          
+          //   return {
+          //     catID: row[0],
+          //     cname: row[1],
+          //     age: row[2],
+          //     aliases: row[3],
+          //     geographical_area: row[4],
+          //     microchipped: row[5],
+          //     chipID: row[6],
+          //     hlength: row[7],
+          //     gender: row[8],
+          //     feral: row[9],
+          //     photo: base64String
+          //   };
+
+          // }));
+          // cats.push(cat);
+      
+          //console.log("RETRIEVED PHOTOS:", cats[cats.size-1][1])
       }));
+      //cats.push(cats);
+
+
+
+      //   const catResult = await connection.execute(
+      //     `SELECT * FROM Cats WHERE catID = :catID`, { catID }
+      //   );
+
+      //   if (catResult.rows.length > 0) {
+      //     const catDetails = catResult.rows[0];
+      //     cats.push(catDetails);
+      //   } else {
+      //     console.log('No favorite cats found for ID:', catID);
+      //   }
+      // }));
 
       res.status(200).json(cats);
+
+
+
+
+
     } else {
       console.log('No favorite cats found');
       res.json({ cats: [] }); // Send an empty array if no cats found

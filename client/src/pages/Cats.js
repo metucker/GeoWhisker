@@ -15,20 +15,25 @@ const Cats = () => {
         });
 
         if (response.ok) {
+          console.log("RESPONSE: ", response)
           const data = await response.json();
-          const transformedCats = data.map(catArray => {
-            return {
-              catID: catArray[0],
-              cname: catArray[1],
-              age: catArray[4],
-              aliases: catArray[5],
-              geographical_area: catArray[6],
-              microchipped: catArray[7],
-              // Add more properties as needed
-            };
-          });
+          console.log("DATA: ", data);
+          setFavoritedCats(data);
+          // const transformedCats = data.map(catArray => {
+          //   return {
+          //     catID: catArray[0],
+          //     cname: catArray[1],
+          //     age: catArray[4],
+          //     age: catArray[4],
+          //     aliases: catArray[5],
+          //     geographical_area: catArray[6],
+          //     microchipped: catArray[7],
+          //     photo: catArray[10],
+          //     // Add more properties as needed
+          //   };
+          // });
 
-          setFavoritedCats(transformedCats);
+          // setFavoritedCats(transformedCats);
         } else {
           console.error('Failed to fetch favorited cats:', response.statusText);
         }
