@@ -1221,14 +1221,15 @@ router.post('/cats/:catID/comments', async (req, res) => {
 
   try {
     const { catID } = req.params;
-    const { text } = req.body;
+    const { ctitle, text, statusUpdate, question, urgent, helpNeeded } = req.body;
     const userID = await getSessionUserID(req.cookies.geowhisker);
 
     // Insert the new comment into the database
     const connection = await oracledb.getConnection(dbConfig);
     const result = await connection.execute(
-      `INSERT INTO comments (catID, userID, cbody) VALUES (:catID, :userID, :text)`,
-      [catID, userID, text],
+      `INSERT INTO comments (catID, userID, ctitle, cbody, statusUpdate, question, urgent, helpNeeded) 
+      VALUES (:catID, :userID, :ctitle, :text, :statusUpdate, :question, :urgent, :helpNeeded)`,
+     [catID, userID, ctitle, text, statusUpdate, question, urgent, helpNeeded],
       { autoCommit: true } // Commit the transaction immediately
     );
 
@@ -1252,16 +1253,29 @@ router.get('/cats/:catID/comments', async (req, res) => {
     // Fetch the comments for the given cat ID
     const connection = await oracledb.getConnection(dbConfig);
     const result = await connection.execute(
-      `SELECT c.cbody, u.ID, u.uname FROM Comments c
+      `SELECT c.cbody, c.ctitle, c.statusUpdate, c.question, c.urgent, c.helpNeeded, c.dateCreated,
+      u.ID AS userID, u.uname 
+      FROM Comments c
       INNER JOIN Users u ON c.userID = u.id
-      WHERE c.catID = :catID`,
+      WHERE c.catID = :catID
+      ORDER BY c.dateCreated DESC`,
       [catID]
     );
 
     // Send the comments in the response
     if (result.rows.length > 0) {
-      console.log("COMMENTS: " , result.rows);
-      res.json(result.rows);
+      const comments = result.rows.map(row => ({
+        cbody: row[0],
+        ctitle: row[1],
+        statusUpdate: row[2],
+        question: row[3],
+        urgent: row[4],
+        helpNeeded: row[5],
+        dateCreated: row[6],
+        userID: row[7],
+        uname: row[8]
+      }));
+      res.json(comments);
     } else {
       res.json({ comments: [] });
     }
