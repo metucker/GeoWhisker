@@ -18,7 +18,7 @@ const CatTile = ({ cat }) => {
         {photoUrl ? (
             <img src={photoUrl} alt={cat.cname} />
           ) : (
-            <FontAwesomeIcon icon={faCat} size="10x" color="white" />
+            <FontAwesomeIcon icon={faCat} size="7x" color="white" />
           )}
 
         </Link>
@@ -29,8 +29,16 @@ const CatTile = ({ cat }) => {
 
           <h2>{cat.cname}</h2>
         </Link>
-        <p>Age: {cat.age}</p>
-        <p>Aliases: {cat.aliases}</p>
+        {cat.age ? (
+            <p>Age: {cat.age}</p>
+          ) : (
+            <></>
+        )}
+        {cat.aliases ? (
+          <p>Aliases: {cat.aliases}</p>          
+        ) : (
+            <></>
+        )}
         {/* <p>Geographical Area: {cat.geographical_area}</p>
         <p>Microchipped: {cat.microchipped}</p> */}
         <FavoriteButton catID={cat.catID} />

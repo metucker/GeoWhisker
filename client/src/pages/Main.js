@@ -9,6 +9,7 @@ import CatMap from '../components/CatMap';
 import MapComponent from '../components/MapComponent';
 import MiniCatList from '../components/MiniCatList';
 import UserHome from '../components/UserHome';
+import './Cat.css';
 
 
 const Main = () => {
@@ -28,19 +29,18 @@ const Main = () => {
 
         {/* Section for Your Cats and Your Cat Map */}
         <UserHome />
-        <div className='columns'>
-            {/* Left column - Your Cats */}
-            <div className='yourCats'>
+            {/* Your Cat Map */}
+            {/* <div className='catMap'>
+                <h2>Your Cat Map</h2>
+                <MapComponent />
+            </div> */}
+            {/* Your Cats */}
+            {/* <div className='yourCats'>
                 <h2>Your Cats</h2>
                 <MiniCatList/>
-            </div>
-                {/* Right column - Your Cat Map */}
-            <div className='catMap'>
-                <h2>Your Cat Map</h2>
-                {/* <CatMap catCoordinates={[{ lat: 29.6516, lng: -82.3248 }]}/> */}
-                <MapComponent />
-            </div>
-        </div>
+            </div> */}
+            
+        {/* </div> */}
 
     </div>
 </>

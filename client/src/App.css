@@ -41,35 +41,35 @@
   padding: 10px;
 }
 
-.options {
+.options { 
   display: flex;
   justify-content: center;
   margin: 20px;
   justify-content: space-around;
 }
 
-.columns {
-  margin: 20px;
-  display: flex;
-}
 
-.yourCats,
+/* .yourCats,
 .catMap {
   background-color: #383d46;
-  min-height: 80vh;
-  max-width: fit-content;
-  min-width: 50vw;
   flex: 1;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+   font-size: calc(10px + 2vmin); 
   color: white;
   margin: 20px;
   padding: 10px;
-}
+  max-width: calc(50% - 20px);} 
+  */
 
 .yourCats {
   margin-right: 20px; /* Add margin to the right of yourCats for space between the two */
+}
+
+.catMap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #label, #input {
@@ -112,21 +112,48 @@
   width: 100%;
 }
 
+.map-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: fit-content;
+  min-width: fit-content;
+}
+
+.cat-photo img {
+  max-width: 100%; /* Ensure the image doesn't exceed the width of its container */
+  max-height: 100%; /* Ensure the image doesn't exceed the height of its container */
+}
+
 @media (max-width: 800px) {
-  .columns, .options {
+
+  
+  .options {
     flex-direction: column;
     width: auto;
   }
-  
+  .yourCats, .catMap {
+    max-width: calc(100% - 20px);
+    align-self: center;
+    margin: 20px;
+  }
+  .cat-tile {
+    flex: 0 0 100%;
+    min-width: none !important;
+  }
 
   .options button {
-    width: auto; /* Reset button width for smaller screens */
+    width: 60vw; /* Reset button width for smaller screens */
     margin: 15px; /* Reset margin between buttons for smaller screens */
+    align-self: center; /* Center buttons on smaller screens */
   }
 
   .yourCats {
     margin-right: 0; /* Reset margin for smaller screens */
   }
+  
+
 }
 
 /* Add any specific styling for the LogIn component here */

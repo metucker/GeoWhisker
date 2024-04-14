@@ -5,6 +5,7 @@ import MiniCatList from './MiniCatList';
 import CatMap from './CatMap';
 import '../App.css';
 import '../components/Authentication/Authentication.css';
+import'../pages/Cat.css';
 
 const UserHome = () => {
   const [favoritedCats, setFavoritedCats] = useState([]);
@@ -54,23 +55,7 @@ const UserHome = () => {
     <>
         
 
-        <div className='columns'>
-            {/* Left column - Your Cats */}
-            <div className='yourCats'>
-                <h2>Your Cats</h2>
-                {loading ? (
-                    <>
-                        <p>Loading...</p>
-                        <LoadingSpinner />
-                    </>
-                ) : favoritedCats.length > 0 ? (
-                    favoritedCats.map((cat, index) => (
-                        <CatTile key={index} cat={cat} />
-                    ))
-                ) : (
-                    <p>No favorited cats available.</p>
-                )}
-            </div>
+        {/* <div className='columns'> */}
                 {/* Right column - Your Cat Map */}
             <div className='catMap'>
                 <h2>Your Cat Map</h2>
@@ -85,7 +70,25 @@ const UserHome = () => {
                     <p>No favorited cats' locations available.</p>
                 )}
             </div>
-        </div>
+            {/* Left column - Your Cats */}
+            <div className='yourCats'>
+              <div className='cat-list'>
+                <h2>Your Cats</h2>
+                {loading ? (
+                    <>
+                        <p>Loading...</p>
+                        <LoadingSpinner />
+                    </>
+                ) : favoritedCats.length > 0 ? (
+                    favoritedCats.map((cat, index) => (
+                        <CatTile key={index} cat={cat} />
+                    ))
+                ) : (
+                    <p>No favorited cats available.</p>
+                )}
+                </div>
+            </div>
+        {/* </div> */}
 
     </>
   );

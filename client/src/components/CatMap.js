@@ -59,7 +59,7 @@ const CatMap = ({ cats }) => {
     }, [cats]);
   
     const containerStyle = {
-      width: '100%',
+      width: '600px',
       height: '400px',
     };
   
