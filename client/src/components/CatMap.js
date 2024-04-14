@@ -47,14 +47,17 @@ const CatMap = ({ cats }) => {
         const lngAvg = lngSum / catCenters.length;
         setCenter({ lat: latAvg, lng: lngAvg });
 
-        const latLngBounds = new window.google.maps.LatLngBounds();
-        catLocs.map((cat) => {
-          const coordinates = JSON.parse(cat.geographical_area);
-          coordinates.forEach((coord) => {
-            latLngBounds.extend(coord);
+        if (isLoaded) {
+          const latLngBounds = new window.google.maps.LatLngBounds();
+          catLocs.map((cat) => {
+            const coordinates = JSON.parse(cat.geographical_area);
+            coordinates.forEach((coord) => {
+              latLngBounds.extend(coord);
+            });
           });
-        });
+        
         setCenter(latLngBounds.getCenter());
+        }
       }
     }, [cats]);
   
