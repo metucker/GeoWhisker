@@ -1032,12 +1032,66 @@ router.get('/user', async (req, res) => {
   }
 });
 
+async function updateUndefinedData(userID, updatedUserData) {
+  try {
+    // Fetch the original user data from the database
+    const connection = await oracledb.getConnection(dbConfig);
+    const result = await connection.execute(
+      `SELECT * FROM users WHERE ID = :userID`,
+      [userID]
+    );
+    const row = result.rows[0];
+    const originalUserData = ({
+      ID: row[0],
+      dateCreated: row[1],
+      dateModified: row[2],
+      email: row[3],
+      uname: row[4],
+      pw: row[5],
+      feeder: row[6],
+      trapper: row[7],
+      catAdmin: row[8],
+      blurb: row[9],
+      displayPersonalInfo: row[10]
+  });
+
+
+    // Update updatedUserData with any undefined fields from the original user data
+    for (let key in originalUserData) {
+      if (originalUserData[key] !== null && !updatedUserData.hasOwnProperty(key)) {
+        updatedUserData[key] = originalUserData[key];
+      }
+    }
+  } catch (error) {
+    console.error('Error updating undefined data:', error);
+    // Handle error
+  }
+}
+
 router.put('/users/:userID', async (req, res) => {
   const userID = req.params.userID;
-  const updatedUserData = req.body;
+  let updatedUserData = req.body;
+  console.log("data ot update:", updatedUserData);
+
+  await updateUndefinedData(userID, updatedUserData);
+
+  //update dateModified
+  updatedUserData.dateModified = new Date();
+
+  console.log("complete data to update:", updatedUserData.uname);
+
   try {
     connection = await oracledb.getConnection(dbConfig);
-    const binds = { id: userID, uname: this.name,  };
+    const binds = 
+      { ID: userID, 
+      uname: updatedUserData.uname, 
+      email: updatedUserData.email, 
+      feeder: updatedUserData.feeder, 
+      trapper: updatedUserData.trapper, 
+      catadmin: updatedUserData.catAdmin, 
+      blurb: updatedUserData.blurb,
+      displayPersonalInfo: updatedUserData.displayPersonalInfo
+    };
     const sql = 
     `
     UPDATE users
@@ -1046,12 +1100,15 @@ router.put('/users/:userID', async (req, res) => {
         email = :email,
         feeder = :feeder,
         trapper = :trapper,
-        catadmin = :catadmin
+        catAdmin = :catAdmin,
+        blurb = :blurb,
+        displayPersonalInfo = :displayPersonalInfo
     WHERE
-        id = userID`;
-  
+        ID = :ID`;
     const result = await connection.execute(sql, binds, { autoCommit: true });
+    console.log(result.rowsAffected + ' row(s) updated');
     res.status(200).json({ message: 'User data updated successfully' });
+    console.log('User data updated successfully:', result.rowsAffected + ' row(s) updated');
   } catch (error) {
     console.error('Error updating user data:', error);
     res.status(500).json({ error: 'Failed to update user data' });

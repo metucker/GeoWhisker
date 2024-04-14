@@ -4,6 +4,7 @@ import '../App.css';
 import '../components/Authentication/Authentication.css';
 import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
 import { useNavigate, Link } from 'react-router-dom';
+import EditUser from '../components/Users/EditUser';
 
 
 const User = () => {
@@ -69,34 +70,34 @@ const User = () => {
 
     }, []);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevFormData => ({
-            ...prevFormData,
-            [name]: value
-        }));
-    };
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setFormData(prevFormData => ({
+    //         ...prevFormData,
+    //         [name]: value
+    //     }));
+    // };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`/users/${user[0]}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                console.log('User data updated successfully');
-                fetchUserData(); // Refetch user data after update
-            } else {
-                throw new Error('Failed to update user data');
-            }
-        } catch (error) {
-            console.error('Error updating user data:', error);
-        }
-    };
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const response = await fetch(`/users/${user[0]}`, {
+    //             method: 'PUT',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(formData)
+    //         });
+    //         if (response.ok) {
+    //             console.log('User data updated successfully');
+    //             fetchUserData(); // Refetch user data after update
+    //         } else {
+    //             throw new Error('Failed to update user data');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error updating user data:', error);
+    //     }
+    // };
 
     if (isLoading) {
         return <LoadingSpinner />; // Show loading spinner while checking session validity and fetching user data
@@ -114,7 +115,7 @@ const User = () => {
             <Link key={user[0]} to={`/user/${user[0]}`}>
                 <h2>View your profile</h2>
             </Link>
-            <form onSubmit={handleSubmit}>
+            {/* <form onSubmit={handleSubmit}>
                 <label>
                     Display Name:
                     <input type="text" name="name" value={formData.name} onChange={handleChange} />
@@ -124,7 +125,8 @@ const User = () => {
                     <input type="email" name="email" value={formData.email} onChange={handleChange} />
                 </label>
                 <button type="submit">Update</button>
-            </form>
+            </form> */}
+            {user && <EditUser user={user} />}
         </div>
     );
 };
