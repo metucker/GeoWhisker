@@ -70,35 +70,6 @@ const User = () => {
 
     }, []);
 
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData(prevFormData => ({
-    //         ...prevFormData,
-    //         [name]: value
-    //     }));
-    // };
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     try {
-    //         const response = await fetch(`/users/${user[0]}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify(formData)
-    //         });
-    //         if (response.ok) {
-    //             console.log('User data updated successfully');
-    //             fetchUserData(); // Refetch user data after update
-    //         } else {
-    //             throw new Error('Failed to update user data');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error updating user data:', error);
-    //     }
-    // };
-
     if (isLoading) {
         return <LoadingSpinner />; // Show loading spinner while checking session validity and fetching user data
     }
@@ -110,22 +81,17 @@ const User = () => {
     }
 
     return (
-        <div>
-            <h1>User Profile</h1>
-            <Link key={user[0]} to={`/user/${user[0]}`}>
-                <h2>View your profile</h2>
+        <div className="userProfile">
+            <h1>Edit User Profile</h1>
+            <h2> Edit your profile below. </h2>
+                <button>
+                <Link key={user[0]} to={`/user/${user[0]}`}>
+            View Preview
             </Link>
-            {/* <form onSubmit={handleSubmit}>
-                <label>
-                    Display Name:
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} />
-                </label>
-                <label>
-                    Email:
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} />
-                </label>
-                <button type="submit">Update</button>
-            </form> */}
+                </button>
+           
+            
+            
             {user && <EditUser user={user} />}
         </div>
     );

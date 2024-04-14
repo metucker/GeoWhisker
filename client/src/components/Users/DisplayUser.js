@@ -1,16 +1,22 @@
 import React from 'react';
+import './Users.css';
 
 const DisplayUser = ({ user }) => {
   return (
-    <div>
-        <h2>Profile Information</h2>
-        <p>Name: {user.uname ? (user.uname) : (`User${user.ID}`)}</p>
-        <p>Email: {user.email}</p>
-        <div className="status-bar">
-            {user.feeder === 1 && <div className="status feeder">Urgent</div>}
-            {user.trapper === 1 && <div className="status trapper">Help Needed</div>}
-            {user.catAdmin === 1 && <div className="status catAdmin">Update</div>}
-        </div>
+    <div className="userProfile">
+        { user ? (
+         <>
+            <h1>{user.uname ? (user.uname) : (`User${user.ID}`)}</h1>
+            <div className="status-bar">
+                {user.feeder === 1 && <div className="status feeder">Feeder</div>}
+                {user.trapper === 1 && <div className="status trapper">Trapper</div>}
+                {user.catAdmin === 1 && <div className="status catAdmin">Cat Admin</div>}
+            </div>
+            {user.displayPersonalInfo ? <p>Email: {user.email}</p> : <p>No Email available.</p>}
+        </>
+        )
+        :
+        (<p>No User Information Available</p>)}
     </div>
   );
 };
