@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Comments.css';
 
 const AddComment = ({ catID }) => {
   const [comment, setComment] = useState('');
@@ -28,7 +29,7 @@ const AddComment = ({ catID }) => {
   };
 
   return (
-    <div>
+    <div className="addComment">
       <h2>Add Comment</h2>
       <form onSubmit={handleSubmit}>
         <textarea
@@ -37,6 +38,7 @@ const AddComment = ({ catID }) => {
           placeholder="Enter your comment"
           required
         ></textarea>
+        <br/>
         <button type="submit">Submit</button>
       </form>
     </div>

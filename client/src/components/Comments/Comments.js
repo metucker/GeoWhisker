@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Comments.css';    
 
+
 const Comments = ({ catID }) => {
   const [comments, setComments] = useState([]);
 
@@ -25,19 +26,21 @@ const Comments = ({ catID }) => {
   }, [catID]);
 
   return (
-    <div>
+    <div className="comments">
       <h2>Comments</h2>
       <ul>
-        {comments.map((comment, index) => (
-          <div className='comment' key={index} style={{ marginBottom: '30px', padding: '30px', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)' }}>
-          <div className='displayName'>{comment[1]}{comment[0]}{comment[2]}
-            {/* <Link key={comment[2]} to={`/users/${comment[1]}`}></Link> */}
-            <a href src={`/users/${comment[1]}`}>{comment[2]}</a>
-
-
-          </div>: {comment[0]}
-        </div>
-        ))}
+        {comments.length > 0 ? (
+          comments.map((comment, index) => (
+            <div className='comment' key={index} style={{ marginBottom: '30px', padding: '30px' }}>
+              <div className='displayName'><h3>{comment[1]}{comment[0]}{comment[2]}
+                <Link key={comment[2]} to={`/users/${comment[1]}`}></Link>
+                {/* <a href src={`/users/${comment[1]}`}>{comment[2]}</a> */}
+                </h3></div>: {comment[0]}
+            </div>
+          ))
+        ) : (
+          <p>No comments available</p>
+        )}
       </ul>
     </div>
   );

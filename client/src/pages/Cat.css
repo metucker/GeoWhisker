@@ -66,11 +66,15 @@
     margin-top: 5px;
 }
 
-#label, #input, #h1 {
+#label, #input, #h1, #h2 {
     margin: 5px;
 }
 
 #select {
+    padding: 20px;
+}
+
+#textarea {
     padding: 20px;
 }
 
