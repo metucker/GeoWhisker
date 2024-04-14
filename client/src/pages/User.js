@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import '../App.css';
 import '../components/Authentication/Authentication.css';
 import LoadingSpinner from '../components/Loading/LoadingSpinner'; // Import a loading spinner component
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 const User = () => {
@@ -111,6 +111,9 @@ const User = () => {
     return (
         <div>
             <h1>User Profile</h1>
+            <Link key={user[0]} to={`/user/${user[0]}`}>
+                <h2>View your profile</h2>
+            </Link>
             <form onSubmit={handleSubmit}>
                 <label>
                     Display Name:

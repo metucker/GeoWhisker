@@ -1286,5 +1286,43 @@ router.get('/cats/:catID/comments', async (req, res) => {
   }
 });
 
+router.get('/user/:userID', async (req, res) => { 
+
+  try {
+    const { userID } = req.params;
+
+    // Fetch the user data for the given user ID
+    const connection = await oracledb.getConnection(dbConfig);
+    const result = await connection.execute(
+      `SELECT * FROM Users WHERE ID = :userID`,
+      [userID]
+    );
+
+    // Send the user data in the response
+    if (result.rows.length > 0) {
+      const row = result.rows[0];
+      const user = ({
+        ID: row[0],
+        dateCreated: row[1],
+        dateModified: row[2],
+        email: row[3],
+        uname: row[4],
+        pw: row[5],
+        feeder: row[6],
+        trapper: row[7],
+        catAdmin: row[8],
+        blurb: row[9],
+        displayPersonalInfo: row[10]
+    });
+      res.json(user);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+    
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+});
   
 module.exports = router;
