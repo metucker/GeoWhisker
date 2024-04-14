@@ -134,13 +134,19 @@
     width: auto;
   }
   .yourCats, .catMap {
-    max-width: calc(100% - 20px);
+    max-width: calc(100% - 20px) !important;
     align-self: center;
     margin: 20px;
+    min-width: 80%;
   }
+
+  .map-container {
+    flex: 0 0 100%;
+  }
+
   .cat-tile {
     flex: 0 0 100%;
-    min-width: none !important;
+    min-width: 80% !important;
   }
 
   .options button {
