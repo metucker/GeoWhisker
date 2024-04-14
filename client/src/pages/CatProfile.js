@@ -5,10 +5,15 @@ import { useParams } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
 import AddComment from '../components/Comments/AddComment';
 import Comments from '../components/Comments/Comments';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCat } from '@fortawesome/free-solid-svg-icons';
+import './Cat.css';
+import withAuthentication from '../components/Authentication/withAuthentication';
 
 const CatProfile = () => {
   const { catID } = useParams();
   const [cat, setCat] = useState(null);
+  const [photo, setPhoto] = useState(null);
   console.log('Cat ID:', catID);
 
 
@@ -22,6 +27,8 @@ const CatProfile = () => {
           const data = await response.json();
           console.log('Cat data:', data);
           setCat(data);
+          console.log("CAT PHOTO: ", data[0].photo);
+          setPhoto(data[0].photo);
         } else {
           console.error('Failed to fetch cat');
         }
@@ -31,15 +38,19 @@ const CatProfile = () => {
     };
 
     fetchCat();
-  }, [catID]);
+  }, []);
 
   return (
     <>
-    <div>
+    <div className="addCat">
       {cat ? (
         <div>
           <h1>Cat Profile</h1>
-          <img src={`data:image/jpeg;base64,${cat[0].photo}`} alt={cat.cname} />
+            {photo ? (
+              <img src={`data:image/jpeg;base64,${photo}`} alt={cat.cname} />
+            ) : (
+              <FontAwesomeIcon icon={faCat} style={{ color: 'blue', fontSize: '24px' }} />
+            )}
           <h2>{cat[0].cname}</h2>
           <p>Age: {cat[0].age}</p>
           {/* Display other cat details */}
@@ -58,4 +69,4 @@ const CatProfile = () => {
   );
 };
 
-export default CatProfile;
+export default withAuthentication(CatProfile);

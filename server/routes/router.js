@@ -899,8 +899,8 @@ router.get('/cats', async (req, res) => {
     const result = await connection.execute(sql);
 
     const cats = await Promise.all(result.rows.map(async row => {
-      const photoBuffer = await row[10].getData();
-      const base64String = photoBuffer.toString('base64');
+      const photoBuffer = row[10] ? await row[10].getData() : null;
+      const base64String = photoBuffer ? photoBuffer.toString('base64') : null;
     
       return {
         catID: row[0],
@@ -934,16 +934,16 @@ router.get('/cat/:catID', async (req, res) => {
     const sql = `
       SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
       FROM Cats c
-      INNER JOIN ProfilePhotos pp ON c.catID = pp.catID
-      INNER JOIN CatPhotos p ON pp.photoID = p.photoID
+      LEFT JOIN ProfilePhotos pp ON c.catID = pp.catID
+      LEFT JOIN CatPhotos p ON pp.photoID = p.photoID
       WHERE c.catID = :catID
     `;
 
     const result = await connection.execute(sql, { catID: parseInt(catID) });
 
     const cat = await Promise.all(result.rows.map(async row => {
-      const photoBuffer = await row[10].getData();
-      const base64String = photoBuffer.toString('base64');
+      const photoBuffer = row[10] ? await row[10].getData() : null;
+      const base64String = photoBuffer ? photoBuffer.toString('base64') : null;
     
       return {
         catID: row[0],
