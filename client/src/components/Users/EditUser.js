@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import User from '../../pages/User';
-import './Users.css'
+import './Users.css';
 
 const EditUser = ({ user }) => {
   const [formData, setFormData] = useState({
@@ -106,10 +106,11 @@ const EditUser = ({ user }) => {
         <textarea name="blurb" value={formData.blurb} onChange={handleChange} placeholder="Blurb" />
         <br />
         <div className="displayInfo">
-          <label className={formData.displayPersonalInfo ? 'selected' : ''}>
+          
           <input type="checkbox" name="displayPersonalInfo" checked={formData.displayPersonalInfo} onChange={handleChange} />
-          <div className="status-bar status display-info">Display Personal Info</div>
-          <p>Checking this box will reveal your personal details on your profile page that is publicly available. </p>
+          <label className={formData.displayPersonalInfo ? 'selected' : ''}>
+          <div> Would you like to display your personal information in your profile page so that other users can contact you?</div>
+          <p>NOTE: Checking this box will reveal your personal details on your profile page that is publicly available. </p>
 
           </label>
         </div>

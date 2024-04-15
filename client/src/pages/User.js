@@ -85,7 +85,7 @@ const User = () => {
             <h1>Edit User Profile</h1>
             <h2> Edit your profile below. </h2>
                 <button>
-                <Link key={user[0]} to={`/user/${user[0]}`}>
+                <Link className="preview-link" key={user[0]} to={`/user/${user[0]}`} target="_blank" rel="noopener noreferrer">
             View Preview
             </Link>
                 </button>
