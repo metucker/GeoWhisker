@@ -6,7 +6,7 @@ import AddCatMap from '../components/AddCatMap';
 import TestMap from '../components/TestMap';
 import MapComponent, {setPolygonCoordinates} from '../components/MapComponent';
 import withAuthentication from '../components/Authentication/withAuthentication';
-
+import GoogleMapsLoader from '../GoogleMapsLoader';
 
 const AddCat = () => {
   // State variables for form fields
@@ -178,7 +178,8 @@ const AddCat = () => {
            {/* <AddCatMap setPolygonCoordinates={handleGeoChange} />  */}
 
         </label>
-        <MapComponent setPolygonCoordinates={handleGeoChange} />
+        {/* <MapComponent setPolygonCoordinates={handleGeoChange} /> */}
+        <GoogleMapsLoader setPolygonCoordinates={handleGeoChange} />
         <input type="hidden" name="geographical_area" value={geographical_area} />
 
         {/* <TestMap setPolygonCoordinates={handleGeoChange} /> */}

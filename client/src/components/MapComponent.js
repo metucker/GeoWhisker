@@ -11,7 +11,7 @@ const MapComponent = ({setPolygonCoordinates}) => {
     const activePolygonIndex = useRef();
     const autocompleteRef = useRef();
     const drawingManagerRef = useRef();
-    //const [polygonCoordinates, setPolygonCoordinates] = useState([]);
+    // const [polygonCoordinates, setPolygonCoordinates] = useState([]);
 
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -166,8 +166,8 @@ const MapComponent = ({setPolygonCoordinates}) => {
     const onDeleteDrawing = () => {  
         
         setPolygons([]);
-        //drawingManagerRef.current.setMap(null)
-        //onLoadMap(mapRef.current);
+        drawingManagerRef.current.setMap(null)
+        onLoadMap(mapRef.current);
 
     }
 
@@ -190,7 +190,6 @@ const MapComponent = ({setPolygonCoordinates}) => {
             lat: latLng.lat(),
             lng: latLng.lng()
         }));
-        //console.log("POLYGON COORDINATES:", polygonCoordinates);
         setPolygonCoordinates(polygonCoordinates);
         console.log("Set polygon coordinates:", polygonCoordinates);
 
@@ -199,7 +198,7 @@ const MapComponent = ({setPolygonCoordinates}) => {
     return (
         isLoaded
             ?
-            <div className='map-container' style={{ position: 'relative' }}>
+            <div className='add-cat-map-container' style={{ position: 'relative' }}>
                 {
                     drawingManagerRef.current
                     &&

@@ -6,6 +6,7 @@ import CatMap from './CatMap';
 import '../App.css';
 import '../components/Authentication/Authentication.css';
 import'../pages/Cat.css';
+import GoogleMapsLoader from '../GoogleMapsLoader';
 
 const UserHome = () => {
   const [favoritedCats, setFavoritedCats] = useState([]);
@@ -65,7 +66,8 @@ const UserHome = () => {
                         <LoadingSpinner />
                     </>
                 ) : favoritedCats.length > 0 ? (
-                    <CatMap cats={favoritedCats}/>     
+                    // <CatMap cats={favoritedCats}/>   
+                    <GoogleMapsLoader cats={favoritedCats} />  
                 ) : (
                     <p>No favorited cats' locations available.</p>
                 )}
