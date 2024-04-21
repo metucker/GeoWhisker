@@ -45,13 +45,15 @@ const CatProfile = () => {
     <div className="addCat">
       {cat ? (
         <div>
-          <h1>Cat Profile</h1>
+          <h1>{cat[0].cname}</h1>
             {photo ? (
               <img src={`data:image/jpeg;base64,${photo}`} alt={cat.cname} />
             ) : (
-              <FontAwesomeIcon icon={faCat} style={{ color: 'blue', fontSize: '24px' }} />
+              <div>
+                <FontAwesomeIcon icon={faCat} style={{ color: '#054146', fontSize: '128px' }} />
+                <p>No photo available.</p>
+              </div>
             )}
-          <h2>{cat[0].cname}</h2>
           <p>Age: {cat[0].age}</p>
           {/* Display other cat details */}
           <FavoriteButton catID={catID} />
