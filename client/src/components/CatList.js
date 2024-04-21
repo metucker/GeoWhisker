@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import CatTile from './CatTile';
 
-const CatList = () => {
+const CatList = ({newCats}) => {
   const [cats, setCats] = useState([]);
 
   useEffect(() => {
-    fetchCats();
-  }, []);
+    if (!newCats) {
+      fetchCats();
+      console.log("fetching cats!", newCats);
+    } else {  
+      setCats(newCats);
+      console.log("new cats filtered!");
+    }
+  }, [newCats]);
 
   const fetchCats = async () => {
     try {
