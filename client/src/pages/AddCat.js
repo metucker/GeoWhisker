@@ -151,9 +151,11 @@ const AddCat = () => {
     <>
     <div className="addCat">
       <h1>Add a Cat</h1>
+      <p>Please provide as many details as you can.</p>
+      <p>If unsure about any fields/options, please leave them blank or unselected.</p>
       <form onSubmit={handleSubmit}>
         <label>
-          Cat Name: 
+          Cat Name <span className="danger">(required)</span>: 
           <input type="text" value={cname} required={true} onChange={handleCnameChange} />
         </label>
         <br />
