@@ -15,7 +15,6 @@ const cookieParser = require('cookie-parser');
 // Middleware to parse JSON in the request body
 router.use(bodyParser.json());
 router.use(cookieParser());
-// Parse application/x-www-form-urlencoded
 router.use(bodyParser.urlencoded({ extended: false }));
 const upload = multer({ dest: 'uploads/' });
 
@@ -85,8 +84,6 @@ router.get('/favorites/:catID', async (req, res) => {
   const  { catID } = req.params;
   const  userID = await getSessionUserID(req.cookies.geowhisker);
 
-  console.log("User ID of list of favorite cats! ", userID, "and " ,catID);
-
   try {
     // Get a connection from the pool
     const connection = await oracledb.getConnection(dbConfig);
@@ -102,15 +99,7 @@ router.get('/favorites/:catID', async (req, res) => {
 
     const count = result.rows[0][0];
 
-    console.log("RESULT COUNT:", count);
-
     const isFavorited = count > 0;
-
-    if (isFavorited) {
-      console.log('Cat is favorited by the user');
-    } else {
-      console.log('Cat is not favorited by the user');
-    }
 
     // Send the response
     res.json({ isFavorited });
@@ -142,7 +131,6 @@ router.get('/userfavorites', async (req, res) => {
     const favoriteCats = result.rows;
 
     if (favoriteCats) {
-      //console.log('Cats found', favoriteCats);
     
     } else {
       console.log('User is not currently following any cats');
@@ -158,80 +146,6 @@ router.get('/userfavorites', async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 });
-
-// router.get('/favoritelist', async (req, res) => {
-//   const userID = await getSessionUserID(req.cookies.geowhisker);
-
-//   try {
-//     const connection = await oracledb.getConnection(dbConfig);
-
-//     const result = await connection.execute(
-//       `SELECT catID FROM Favorites WHERE userID = :userID`,
-//       {
-//         userID: userID
-//       }
-//     );
-
-//     if (result.rows.length > 0) {
-//       const catIDs = result.rows.map(row => row[0]);
-//       console.log('Favorites exist:', catIDs);
-
-//       const cats = [];
-
-//       // Fetch details of each cat asynchronously
-//       await Promise.all(catIDs.map(async catID => {
-//         const catResult = await connection.execute(
-//           `SELECT Cats.catID, Cats.cname, Cats.age, Cats.aliases, Cats.geographical_area, Cats.microchipped, Cats.chipID, Cats.hlength, Cats.gender, Cats.feral, p.photo FROM Cats 
-//           INNER JOIN ProfilePhotos pp ON Cats.catID = pp.catID
-//           INNER JOIN CatPhotos p ON pp.photoID = p.photoID
-//           WHERE Cats.catID = :catID`, { catID }
-//         );
-
-        
-        
-
-//         if (catResult.rows.length > 0) {
-//           // let cats = [];
-
-//           // cats = await Promise.all(catResult.rows.map(async row => {
-//           //   const photoBuffer = await row[10].getData();
-//           //   const base64String = photoBuffer.toString('base64');
-          
-//           //   return {
-//           //     catID: row[0],
-//           //     cname: row[1],
-//           //     age: row[2],
-//           //     aliases: row[3],
-//           //     geographical_area: row[4],
-//           //     microchipped: row[5],
-//           //     chipID: row[6],
-//           //     hlength: row[7],
-//           //     gender: row[8],
-//           //     feral: row[9],
-//           //     photo: base64String
-//           //   };
-//           // }));
-
-
-//           res.status(200).json(catResult );
-//           //const cat = catResult.rows[0]; // Assuming only one row is expected
-          
-//           // cats.push(cats); // Collect cat details
-//         } else {
-//           console.log('No favorite cats found for ID:', catID);
-//         }
-//       }));
-//       // Send the response after all cats have been collected
-//     } else {
-//       console.log('No favorite cats found');
-//       res.json({ cats: [] }); // Send an empty array if no cats found
-//     }
-
-//   } catch (error) {
-//     console.error('Error retrieving favorites:', error);
-//     res.status(500).json({ error: 'An internal server error occurred' });
-//   }
-// });
 
 router.get('/favoritelist', async (req, res) => {
   const userID = await getSessionUserID(req.cookies.geowhisker);
@@ -255,99 +169,59 @@ router.get('/favoritelist', async (req, res) => {
       // Fetch details of each cat asynchronously
       await Promise.all(catIDs.map(async catID => {
 
-        
-          //const connection = await oracledb.getConnection(dbConfig);
-      
-          const sql = `
-            SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
-            FROM Cats c
-            LEFT JOIN ProfilePhotos pp ON c.catID = pp.catID
-            LEFT JOIN CatPhotos p ON pp.photoID = p.photoID
-            WHERE c.catID = :catID
-          `;
-      
-          const catResult = await connection.execute(sql, { catID: parseInt(catID) });
-      
-          if (catResult.rows.length > 0) {
-            const row = catResult.rows[0];
-            const photoBuffer = row[10] ? await row[10].getData() : null;
-            const base64String = photoBuffer ? photoBuffer.toString('base64') : null;
-  
-            const cat = {
-              catID: row[0],
-              cname: row[1],
-              age: row[2],
-              aliases: row[3],
-              geographical_area: row[4],
-              microchipped: row[5],
-              chipID: row[6],
-              hlength: row[7],
-              gender: row[8],
-              feral: row[9],
-              photo: base64String
-            };
-  
-            cats.push(cat);
-            console.log('Cat added to favorites:', cat.catID);
-          } else {
-            console.log('No favorite cats found for ID:', catID);
-          }
-          // const cat = await Promise.all(catResult.rows.map(async row => {
-          //   const photoBuffer = await row[10].getData();
-          //   const base64String = photoBuffer.toString('base64');
-          
-          //   return {
-          //     catID: row[0],
-          //     cname: row[1],
-          //     age: row[2],
-          //     aliases: row[3],
-          //     geographical_area: row[4],
-          //     microchipped: row[5],
-          //     chipID: row[6],
-          //     hlength: row[7],
-          //     gender: row[8],
-          //     feral: row[9],
-          //     photo: base64String
-          //   };
+        const sql = `
+          SELECT c.catID, c.cname, c.age, c.aliases, c.geographical_area, c.microchipped, c.chipID, c.hlength, c.gender, c.feral, p.photo
+          FROM Cats c
+          LEFT JOIN ProfilePhotos pp ON c.catID = pp.catID
+          LEFT JOIN CatPhotos p ON pp.photoID = p.photoID
+          WHERE c.catID = :catID
+        `;
+    
+        const catResult = await connection.execute(sql, { catID: parseInt(catID) });
+    
+        if (catResult.rows.length > 0) {
+          const row = catResult.rows[0];
+          const photoBuffer = row[10] ? await row[10].getData() : null;
+          const base64String = photoBuffer ? photoBuffer.toString('base64') : null;
 
-          // }));
-          // cats.push(cat);
-      
-          //console.log("RETRIEVED PHOTOS:", cats[cats.size-1][1])
+          const cat = {
+            catID: row[0],
+            cname: row[1],
+            age: row[2],
+            aliases: row[3],
+            geographical_area: row[4],
+            microchipped: row[5],
+            chipID: row[6],
+            hlength: row[7],
+            gender: row[8],
+            feral: row[9],
+            photo: base64String
+          };
+
+          cats.push(cat);
+          console.log('Cat added to favorites:', cat.catID);
+        } else {
+          console.log('No favorite cats found for ID:', catID);
+        }
+         
       }));
-      //cats.push(cats);
 
-
-
-      //   const catResult = await connection.execute(
-      //     `SELECT * FROM Cats WHERE catID = :catID`, { catID }
-      //   );
-
-      //   if (catResult.rows.length > 0) {
-      //     const catDetails = catResult.rows[0];
-      //     cats.push(catDetails);
-      //   } else {
-      //     console.log('No favorite cats found for ID:', catID);
-      //   }
-      // }));
-
+      await connection.close();
+      
       res.status(200).json(cats);
-
-
-
-
 
     } else {
       console.log('No favorite cats found');
       res.json({ cats: [] }); // Send an empty array if no cats found
     }
+
   } catch (error) {
     console.error('Error retrieving favorites:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 });
 
-// Example of a gated endpoint
+// Gated endpoint
 router.get('/session', authenticateUser, (req, res) => {
   // If the execution reaches here, it means the user is authenticated
   res.json({ message: 'Welcome to the gated page!' });
@@ -355,8 +229,6 @@ router.get('/session', authenticateUser, (req, res) => {
 
 async function createSession(userID, token) {
   let connection;
-
-  console.log("\n BEFORE createSession!!!     userID:", userID, " & token:", token)
 
   try {
     connection = await oracledb.getConnection(dbConfig);
@@ -559,18 +431,13 @@ router.post('/signup', async (req, res) => {
     try {
         // Extract email and password from req.body
         const { email, pw } = req.body;
-        // Save the user data to the database
-        // (Replacse 'saveUserToDatabase' with your actual function)
-       
+        
+        // Save the user data to the database if they don't already exist
         if (await userExists(email)) {
           console.log('User already exists. Please log in or use a different email.');
-          throw error('User already exists.');
+          throw error('User already exists. Please log in or use a different email.');
         } else {
           await saveUserToDatabase(email, await hashPassword(pw));
-          // Save the user data to the database with schemas
-          // const newData = {email: email, pw: await hashPassword(pw)};
-          // const newUser = new schemas.Users(newData);
-          // await newUser.save();
         }      
 
         // Send a success response
@@ -607,7 +474,6 @@ router.post('/login', async (req, res) => {
 router.post('/addcat', async (req, res) => {
   console.log('USER ID RECEIVED from AddCat.js: ', await getSessionUserID(req.cookies.geowhisker));
 
-
   try {
      
     const { cname,
@@ -621,16 +487,9 @@ router.post('/addcat', async (req, res) => {
       gender,
       feral
     }  = req.body;
-    console.log(req.body, 'USER ID: ', await getSessionUserID(req.cookies.geowhisker));
-
 
     const catID = await createCat(req);
-    // Save the user data to the database with schemas
-    // const newData = {email: email, pw: await hashPassword(pw)};
-    // const newUser = new schemas.Users(newData);
-    // await newUser.save();
-            
-
+     
     // Send a success response
     console.log('catID to be sent back: ', catID);
     res.status(200).json({ catID, message: 'Cat added successfully!' });
@@ -700,20 +559,12 @@ async function createCat(req) {
       userID: await getSessionUserID(req.cookies.geowhisker),
       catID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
     }; 
+
     const result = await connection.execute(sql, binds, { autoCommit: true });
+
     if (result.rowsAffected > 0) {
       console.log('\nCat saved to the database:', result.rowsAffected + ' row(s) inserted');
-      //retrieve catID and send it back in response
-      // sqlGetCatID = `
-      // SELECT catID FROM Cats WHERE 
-      //   cname = :cname AND 
-      //   age = :age AND 
-      //   aliases = :cat_aliases AND 
-      //   geographical_area = :geographical_area AND 
-      //   microchipped = :microchipped AND 
-      //   chipID = :chipID AND 
-      //   hlength = :hlength 
-      // `
+      
       if (result.outBinds && result.outBinds.catID) {
         const newCatID = result.outBinds.catID[0]; // Extract the catID from the output bind variable
         console.log('\nCat saved to the database with catID:', newCatID);
@@ -722,6 +573,14 @@ async function createCat(req) {
       }
     
       //call addCatHealth function
+    }
+
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
     }
   } catch (error) {
       console.error('Error creating cat:', error.message);
@@ -755,7 +614,6 @@ router.post('/addcat/photo', upload.single('photo'), async (req, res) => {
   }
 });
 
-
 async function addCatPhotos(catID, photo, path) {
   let connection;
   try {
@@ -786,6 +644,15 @@ async function addCatPhotos(catID, photo, path) {
         await updateProfilePhoto(connection, catID, newPhotoID);
       }
     }
+
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error('Error closing database connection:', error.message);
+      }
+    }
+
   } catch (error) {
       console.error('Error adding photo in addCatPhotos:', error.message);
       throw error; // You might want to handle the error differently based on your application logic
@@ -824,6 +691,8 @@ async function updateProfilePhoto(connection, catID, photoID) {
     };
     await connection.execute(insertSql, insertBinds, { autoCommit: true });
   }
+
+
 }
 
 router.get('/cats/:catID/photo', async (req, res) => {
@@ -1272,6 +1141,7 @@ router.post('/logout', (req, res) => {
     console.error('Error during logout:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
+  
 });
 
 router.post('/cats/:catID/comments', async (req, res) => {
@@ -1296,6 +1166,9 @@ router.post('/cats/:catID/comments', async (req, res) => {
     }
 
     res.status(201).json({ message: 'Comment added successfully' });
+
+    await closeDbConnection(connection);
+
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
@@ -1336,6 +1209,9 @@ router.get('/cats/:catID/comments', async (req, res) => {
     } else {
       res.json({ comments: [] });
     }
+
+    await closeDbConnection(connection);
+
   }
   catch (error) {
     console.error('Error fetching comments:', error);
@@ -1375,11 +1251,23 @@ router.get('/user/:userID', async (req, res) => {
     } else {
       res.status(404).json({ error: 'User not found' });
     }
+
+    await closeDbConnection(connection);
     
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 });
+
+async function closeDbConnection(connection) {
+  if (connection) {
+    try {
+      await connection.close();
+    } catch (error) {
+      console.error('Error closing database connection:', error.message);
+    }
+  }
+}
   
 module.exports = router;
